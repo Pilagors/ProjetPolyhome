@@ -1,6 +1,7 @@
 package com.monfort.projetpolyhome
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -37,21 +38,27 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun registerSucces(reponseCode :Int){
-        when (reponseCode) {
-            200 -> {
-                Toast.makeText(this, "Le compte a bien été créé", Toast.LENGTH_SHORT).show()
-            }
-            400 -> {
-                Toast.makeText(this, "Erreur : Les données fournies sont incorrectes", Toast.LENGTH_LONG).show()
-            }
-            409 -> {
-                Toast.makeText(this, "Erreur : Ce login est déjà utilisé", Toast.LENGTH_LONG).show()
-            }
-            500 -> {
-                Toast.makeText(this, "Erreur serveur", Toast.LENGTH_LONG).show()
-            }
-            else -> {
-                Toast.makeText(this, "Erreur inconnue (Code: $reponseCode)", Toast.LENGTH_LONG).show()
+        runOnUiThread(){
+            when (reponseCode) {
+                200 -> {
+                    //Log.d("registerButton","succes")
+                    finish()
+                }
+                400 -> {
+                    //Log.d("registerButton","données incorrectes")
+                    Toast.makeText(this,"données incorrectes",Toast.LENGTH_SHORT).show()
+                }
+                409 -> {
+                    //Log.d("registerButton","login deja utilisé")
+                    Toast.makeText(this,"login déjà utilisé",Toast.LENGTH_SHORT).show()
+                }
+                500 -> {
+                    //Log.d("registerButton","serveur")
+                    Toast.makeText(this,"erreur serveur", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    Toast.makeText(this,"erreur inconnue", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

@@ -1,6 +1,6 @@
 package com.monfort.projetpolyhome
 
 data class RegisterData(
-    val name : String,
+    val login : String,
     val password : String
 )
