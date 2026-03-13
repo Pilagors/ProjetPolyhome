@@ -41,19 +41,15 @@ class RegisterActivity : AppCompatActivity() {
         runOnUiThread(){
             when (reponseCode) {
                 200 -> {
-                    //Log.d("registerButton","succes")
                     finish()
                 }
                 400 -> {
-                    //Log.d("registerButton","données incorrectes")
                     Toast.makeText(this,"données incorrectes",Toast.LENGTH_SHORT).show()
                 }
                 409 -> {
-                    //Log.d("registerButton","login deja utilisé")
                     Toast.makeText(this,"login déjà utilisé",Toast.LENGTH_SHORT).show()
                 }
                 500 -> {
-                    //Log.d("registerButton","serveur")
                     Toast.makeText(this,"erreur serveur", Toast.LENGTH_SHORT).show()
                 }
                 else -> {
