@@ -20,21 +20,13 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        initLoginButton()
     }
 
     // ==================================================================== //
     // ========================== INIT METHODS ============================ //
     // ==================================================================== //
 
-    private fun initLoginButton() {
-        val loginButton = findViewById<Button>(R.id.btnLogin)
-        loginButton.setOnClickListener {
-            moveToLogin()
-        }
-    }
-
-    private fun moveToLogin() {
+    fun moveToLogin(view: View) {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }

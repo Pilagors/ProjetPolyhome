@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.androidtp2.Api
+import com.monfort.projetpolyhome.data.RegisterData
 
 class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +34,7 @@ class RegisterActivity : AppCompatActivity() {
         val name = findViewById<EditText>(R.id.usernameRegister)
         val password = findViewById<EditText>(R.id.passwordRegister)
 
-        val data = RegisterData(name.text.toString(),password.text.toString())
+        val data = RegisterData(name.text.toString(), password.text.toString())
         Api().post<RegisterData>("https://polyhome.lesmoulinsdudev.com/api/users/register",data,::registerSucces)
     }
 

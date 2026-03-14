@@ -35,8 +35,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30sp"
             android:ems="10"
-            android:inputType="text"
-            android:text="Name" />
+            android:hint="username"
+            android:inputType="text" />
 
         <EditText
             android:id="@+id/txtPassword"
@@ -44,6 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30sp"
             android:ems="10"
+            android:hint="password"
             android:inputType="textPassword" />
 
         <Button
