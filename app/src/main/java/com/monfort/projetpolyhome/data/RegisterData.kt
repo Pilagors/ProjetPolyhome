@@ -1,4 +1,4 @@
-package com.monfort.projetpolyhome
+package com.monfort.projetpolyhome.data
 
 data class RegisterData(
     val login : String,
