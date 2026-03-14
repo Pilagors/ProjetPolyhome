@@ -3,6 +3,7 @@ package com.monfort.projetpolyhome
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     // ==================================================================== //
     // ========================== INIT METHODS ============================ //
     // ==================================================================== //
+
     private fun initLoginButton() {
         val loginButton = findViewById<Button>(R.id.btnLogin)
         loginButton.setOnClickListener {
@@ -34,6 +36,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun moveToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun gotoRegister(view: View){
+        val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
     }
 }
