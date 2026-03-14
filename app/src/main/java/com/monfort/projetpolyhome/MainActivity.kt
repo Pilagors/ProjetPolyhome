@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun gotoRegister(view: View){
+    fun gotoRegister(view: View){
         val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
     }
