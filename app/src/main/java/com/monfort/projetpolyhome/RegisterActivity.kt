@@ -9,7 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.androidtp2.Api
+import com.monfort.projetpolyhome.utils.Api
 import com.monfort.projetpolyhome.data.RegisterData
 
 class RegisterActivity : AppCompatActivity() {

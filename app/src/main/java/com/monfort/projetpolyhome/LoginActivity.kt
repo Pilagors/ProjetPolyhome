@@ -11,9 +11,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.androidtp2.Api
+import com.monfort.projetpolyhome.utils.Api
 import com.monfort.projetpolyhome.data.LoginData
 import com.monfort.projetpolyhome.data.LoginResponse
+import com.monfort.projetpolyhome.utils.TokenManager
 
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,11 +47,13 @@ class LoginActivity : AppCompatActivity() {
                     if (!token.isNullOrEmpty()) {
                         val tokenManager = TokenManager(this@LoginActivity)
                         tokenManager.saveToken(token)
-                    }
 
-                    val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                        val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                        startActivity(intent)
+                        finish()
+                    }
                 }
                 400 -> { // data incorrect
                     Toast.makeText(this@LoginActivity,"données incorrectes",Toast.LENGTH_SHORT).show()

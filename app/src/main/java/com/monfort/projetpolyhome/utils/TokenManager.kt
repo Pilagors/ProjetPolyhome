@@ -1,4 +1,4 @@
-package com.monfort.projetpolyhome
+package com.monfort.projetpolyhome.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -22,6 +22,10 @@ class TokenManager(context: Context) {
     fun isLogged(): Boolean {
         val token = getToken()
         return !token.isNullOrEmpty()
+    }
+
+    fun logout() {
+        prefs.edit().remove(TOKEN_KEY).apply()
     }
 
 }
