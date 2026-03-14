@@ -1,5 +1,6 @@
 package com.monfort.projetpolyhome
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -42,6 +43,9 @@ class RegisterActivity : AppCompatActivity() {
         runOnUiThread(){
             when (reponseCode) {
                 200 -> {
+                    startActivity(
+                        Intent(this, LoginActivity::class.java)
+                    )
                     finish()
                 }
                 400 -> {
