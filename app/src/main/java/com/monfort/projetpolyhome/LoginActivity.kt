@@ -45,10 +45,10 @@ class LoginActivity : AppCompatActivity() {
                     val token = response?.token
 
                     if (!token.isNullOrEmpty()) {
-                        val tokenManager = TokenManager(this@LoginActivity)
+                        val tokenManager = TokenManager(this)
                         tokenManager.saveToken(token)
 
-                        val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+                        val intent = Intent(this, HomeActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 
                         startActivity(intent)
@@ -56,13 +56,13 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
                 400 -> { // data incorrect
-                    Toast.makeText(this@LoginActivity,"données incorrectes",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"données incorrectes",Toast.LENGTH_SHORT).show()
                 }
                 404 -> { // no user found
-                    Toast.makeText(this@LoginActivity,"utilisateur introuvable",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"utilisateur introuvable",Toast.LENGTH_SHORT).show()
                 }
                 500 -> { // erreur serveur
-                    Toast.makeText(this@LoginActivity,"erreur serveur",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"erreur serveur",Toast.LENGTH_SHORT).show()
                 }
             }
         }
