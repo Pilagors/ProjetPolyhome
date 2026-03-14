@@ -20,7 +20,8 @@ class TokenManager(context: Context) {
     }
 
     fun isLogged(): Boolean {
-        return getToken() != null
+        val token = getToken()
+        return !token.isNullOrEmpty()
     }
 
 }
