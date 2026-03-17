@@ -9,14 +9,14 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.monfort.projetpolyhome.R
-import com.monfort.projetpolyhome.data.HouseItemData
+import com.monfort.projetpolyhome.data.HouseData
 import com.monfort.projetpolyhome.data.UserData
 import com.monfort.projetpolyhome.utils.Api
 import com.monfort.projetpolyhome.utils.TokenManager
 
 class HouseAdapter(
     private val context : Context,
-    private val dataSource : ArrayList<HouseItemData>
+    private val dataSource : ArrayList<HouseData>
 ) : BaseAdapter() {
 
     lateinit var houseUsers : List<UserData>
@@ -27,7 +27,7 @@ class HouseAdapter(
         return dataSource.size
     }
 
-    override fun getItem(position: Int): HouseItemData? {
+    override fun getItem(position: Int): HouseData? {
         return dataSource[position]
     }
 
@@ -37,12 +37,11 @@ class HouseAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
         val rowView = inflater.inflate(R.layout.houses_list_item, parent, false)
-        val token = TokenManager(context).getToken() ?: ""
 
         val current = getItem(position)
 
-        rowView.findViewById<TextView>(R.id.houseNumber).text = "${current?.id}"
-        rowView.findViewById<TextView>(R.id.houseOwner).text = "${current?.owner}"
+        rowView.findViewById<TextView>(R.id.houseNumber).text = "${current?.houseId}"
+        rowView.findViewById<TextView>(R.id.isOwner).visibility = if(current?.owner == true) View.VISIBLE else View.INVISIBLE
 
         return rowView
     }
