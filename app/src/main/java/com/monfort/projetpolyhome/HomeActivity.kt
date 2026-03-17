@@ -2,6 +2,7 @@ package com.monfort.projetpolyhome
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +22,11 @@ class HomeActivity : AppCompatActivity() {
         }
 
         initLogoutButton()
+    }
+
+    fun goToHouses(view: View) {
+        val intent = Intent(this, HousesActivity::class.java)
+        startActivity(intent)
     }
 
     private fun initLogoutButton() {
