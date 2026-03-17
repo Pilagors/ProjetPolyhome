@@ -31,8 +31,6 @@ class MainActivity : AppCompatActivity() {
     private fun checkToken() {
         val tokenManager = TokenManager(this)
 
-        val token = tokenManager.getToken()
-
         if (tokenManager.isLogged()) {
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
