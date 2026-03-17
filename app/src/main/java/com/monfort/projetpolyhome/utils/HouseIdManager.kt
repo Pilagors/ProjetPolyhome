@@ -9,11 +9,11 @@ class HouseIdManager(context: Context) {
         private const val HOUSE_ID_KEY = "houseId"
     }
 
-    fun saveHouseId(houseId: String) {
-        prefs.edit().putString(HOUSE_ID_KEY, houseId).apply()
+    fun saveHouseId(houseId: Int) {
+        prefs.edit().putInt(HOUSE_ID_KEY, houseId).apply()
     }
 
-    fun getHouseId(): String? {
-        return prefs.getString(HOUSE_ID_KEY, null)
+    fun getHouseId(): Int? {
+        return prefs.getInt(HOUSE_ID_KEY, -1)
     }
 }
