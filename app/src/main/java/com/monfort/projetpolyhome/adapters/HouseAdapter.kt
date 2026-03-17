@@ -5,21 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import com.monfort.projetpolyhome.R
 import com.monfort.projetpolyhome.data.HouseData
-import com.monfort.projetpolyhome.data.UserData
-import com.monfort.projetpolyhome.utils.Api
-import com.monfort.projetpolyhome.utils.TokenManager
 
 class HouseAdapter(
     private val context : Context,
     private val dataSource : ArrayList<HouseData>
 ) : BaseAdapter() {
-
-    lateinit var houseUsers : List<UserData>
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
