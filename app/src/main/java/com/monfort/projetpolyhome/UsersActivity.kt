@@ -4,16 +4,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ListView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.monfort.projetpolyhome.adapters.UserAdapter
+import com.monfort.projetpolyhome.data.HouseData
 import com.monfort.projetpolyhome.data.UserData
 import com.monfort.projetpolyhome.utils.Api
+import com.monfort.projetpolyhome.utils.TokenManager
 
 class UsersActivity : AppCompatActivity() {
     val usersInfos : ArrayList<UserData> = ArrayList()
+    val housesInfos : ArrayList<HouseData> = ArrayList()
+    val myhouse : Int = -1
+
     lateinit var adapter: UserAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,9 +30,12 @@ class UsersActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        initButton()
-        initListUsers()
+
         adapter = UserAdapter(this,usersInfos)
+        initButton()
+        fetchmyHouse()
+        fetchUsers()
+        initListUsers()
     }
 
 
@@ -43,8 +52,52 @@ class UsersActivity : AppCompatActivity() {
         findViewById<ListView>(R.id.listUsers).adapter = adapter
     }
 
-    private fun getUsersInMyHouse(){
+    private fun fetchmyHouse () {
+        val token = TokenManager(this).getToken()
+
+        Api().get<List<HouseData>>("https://polyhome.lesmoulinsdudev.com/api/houses", ::successFetchHouses, token)
+    }
+    private fun successFetchHouses(responseCode : Int, response : List<HouseData>?) {
+        runOnUiThread {
+            when(responseCode) {
+                200 -> {
+                    if (!response.isNullOrEmpty()) {
+                        housesInfos.addAll(response)
+                    }
+                }
+                403 -> {
+                    Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+                }
+                500 -> {
+                    Toast.makeText(this,"erreur serveur",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
+
+    private fun fetchUsers(){
+        val token = TokenManager(this).getToken()
+        Api().get<List<UserData>>("https://polyhome.lesmoulinsdudev.com/api/houses/${myhouse}/users",::successFetchUsers,token)
+    }
+
+    private fun successFetchUsers(responseCode : Int, response : List<UserData>?){
+        runOnUiThread {
+            when(responseCode) {
+                200 -> {
+                    if (!response.isNullOrEmpty()) {
+                        usersInfos.addAll(response)
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+                403 -> {
+                    Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+                }
+                500 -> {
+                    Toast.makeText(this,"erreur serveur",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
 }
