@@ -20,7 +20,7 @@ class HomeActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        initUsersButton()
         initLogoutButton()
     }
 
@@ -34,6 +34,14 @@ class HomeActivity : AppCompatActivity() {
         btnLogout.setOnClickListener { logout() }
     }
 
+    private fun initUsersButton(){
+        findViewById<Button>(R.id.goToUserActivityFromHome).setOnClickListener { goToUserActivity() }
+    }
+
+    private fun goToUserActivity(){
+        val intent = Intent(this, UsersActivity::class.java)
+        startActivity(intent)
+    }
     private fun logout() {
         TokenManager(this).logout()
 
