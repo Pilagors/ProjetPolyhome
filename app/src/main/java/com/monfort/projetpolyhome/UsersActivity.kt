@@ -19,7 +19,6 @@ import com.monfort.projetpolyhome.utils.TokenManager
 class UsersActivity : AppCompatActivity() {
     val usersInfos : ArrayList<UserData> = ArrayList()
     val housesInfos : ArrayList<HouseData> = ArrayList()
-    var myhouse : Int = -1
 
     lateinit var adapter: UserAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +32,6 @@ class UsersActivity : AppCompatActivity() {
         }
 
         adapter = UserAdapter(this,usersInfos)
-        getmyHouse()
         initButton()
         fetchUsers()
         initListUsers()
@@ -53,13 +51,13 @@ class UsersActivity : AppCompatActivity() {
         findViewById<ListView>(R.id.listUsers).adapter = adapter
     }
 
-    private fun getmyHouse(){
-        myhouse = HouseIdManager(this).getHouseId()!!
-    }
-
     private fun fetchUsers(){
         val token = TokenManager(this).getToken()
-        Api().get<List<UserData>>("https://polyhome.lesmoulinsdudev.com/api/houses/${myhouse}/users",::successFetchUsers,token)
+        val pickedHouse = HouseIdManager(this).getHouseId()
+        if (pickedHouse != -1){
+            Api().get<List<UserData>>("https://polyhome.lesmoulinsdudev.com/api/houses/${pickedHouse}/users",::successFetchUsers,token)
+
+        }
     }
 
     private fun successFetchUsers(responseCode : Int, response : List<UserData>?){
