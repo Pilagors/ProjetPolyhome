@@ -3,11 +3,14 @@ package com.monfort.projetpolyhome
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.monfort.projetpolyhome.utils.HouseIdManager
 import com.monfort.projetpolyhome.utils.TokenManager
 
 class HomeActivity : AppCompatActivity() {
@@ -22,6 +25,29 @@ class HomeActivity : AppCompatActivity() {
         }
 
         initLogoutButton()
+        viewHouse()
+    }
+
+    private fun viewHouse() {
+        val houseId = HouseIdManager(this).getHouseId()
+
+        val webView = findViewById<WebView>(R.id.houseView)
+
+        if (houseId == -1) {
+            webView.visibility = View.INVISIBLE
+
+        } else {
+
+            val settings = webView.settings
+            settings.javaScriptEnabled = true
+            settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+            settings.domStorageEnabled = true
+
+            webView.webViewClient = WebViewClient()
+
+            webView.loadUrl("https://polyhome.lesmoulinsdudev.com/?houseId=${houseId}")
+        }
     }
 
     fun goToHouses(view: View) {
