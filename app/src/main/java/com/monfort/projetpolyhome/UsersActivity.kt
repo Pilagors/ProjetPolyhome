@@ -2,6 +2,7 @@ package com.monfort.projetpolyhome
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
@@ -34,6 +35,7 @@ class UsersActivity : AppCompatActivity() {
         adapter = UserAdapter(this,usersInfos)
         initButton()
         fetchUsers()
+        initOwnerButton()
         initListUsers()
     }
 
@@ -79,4 +81,16 @@ class UsersActivity : AppCompatActivity() {
         }
     }
 
+    private fun initOwnerButton(){
+        val caca = findViewById<Button>(R.id.AddUsersFromHouseButton)
+        val pipi = findViewById<Button>(R.id.DeleteUsersFromHouseButton)
+        if (HouseIdManager(this).isOwner()){
+            pipi.visibility = View.VISIBLE
+            caca.visibility = View.VISIBLE
+        }
+        else {
+            pipi.visibility = View.INVISIBLE
+            caca.visibility = View.INVISIBLE
+        }
+    }
 }

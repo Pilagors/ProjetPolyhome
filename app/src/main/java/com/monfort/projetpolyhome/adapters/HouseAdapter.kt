@@ -51,7 +51,7 @@ class HouseAdapter(
         rowView.setOnClickListener {
             current?.let {
                 HouseIdManager(context).saveHouseId(it.houseId)
-
+                HouseIdManager(context).saveOwner(it.owner)
                 notifyDataSetChanged()
             }
         }
