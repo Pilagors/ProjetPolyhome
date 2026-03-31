@@ -34,7 +34,7 @@
         android:id="@+id/houseView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="30dp"
+        android:layout_marginBottom="30dp"
         app:layout_constraintBottom_toTopOf="@+id/btnHouses"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
