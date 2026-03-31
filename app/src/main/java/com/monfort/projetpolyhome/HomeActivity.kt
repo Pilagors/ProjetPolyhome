@@ -24,7 +24,6 @@ class HomeActivity : AppCompatActivity() {
             insets
         }
 
-        initLogoutButton()
         viewHouse()
     }
 
@@ -55,12 +54,7 @@ class HomeActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun initLogoutButton() {
-        val btnLogout = findViewById<Button>(R.id.btnLogout)
-        btnLogout.setOnClickListener { logout() }
-    }
-
-    private fun logout() {
+    fun logout(view: View) {
         TokenManager(this).logout()
 
         val intent = Intent(this, MainActivity::class.java)
