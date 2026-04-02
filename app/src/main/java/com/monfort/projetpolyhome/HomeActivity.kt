@@ -2,24 +2,32 @@ package com.monfort.projetpolyhome
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.monfort.projetpolyhome.adapters.DeviceAdapter
+import com.monfort.projetpolyhome.adapters.HouseAdapter
 import com.monfort.projetpolyhome.components.CustomWebView
 import com.monfort.projetpolyhome.data.DeviceData
+import com.monfort.projetpolyhome.data.DevicesResponse
+import com.monfort.projetpolyhome.utils.Api
 import com.monfort.projetpolyhome.utils.HouseIdManager
 import com.monfort.projetpolyhome.utils.TokenManager
 
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var webView : WebView
+
+    lateinit var adapter : DeviceAdapter
+    val devicesList : ArrayList<DeviceData> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +39,8 @@ class HomeActivity : AppCompatActivity() {
             insets
         }
 
+        this.adapter = DeviceAdapter(this, devicesList)
+
         initList()
     }
 
@@ -41,15 +51,15 @@ class HomeActivity : AppCompatActivity() {
 
         viewHouse(houseId, webView)
         refreshHouseIdView(houseId)
-        initDevicesCards(houseId)
     }
 
     private fun initList() {
         val listView = findViewById<ListView>(R.id.middleListView)
         val header = layoutInflater.inflate(R.layout.header_home_list_view, listView, false)
         this.webView = header.findViewById<WebView>(R.id.houseView)
+
         listView.addHeaderView(header)
-        listView.adapter = DeviceAdapter(this, emptyList())
+        listView.adapter = adapter
     }
 
     private fun viewHouse(houseId: Int, webView: WebView) {
@@ -64,7 +74,15 @@ class HomeActivity : AppCompatActivity() {
             settings.loadWithOverviewMode = true
             settings.domStorageEnabled = true
 
-            webView.webViewClient = WebViewClient()
+            webView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+
+                    webView.postDelayed({
+                        getDevicesList(houseId)
+                    }, 3000)
+                }
+            }
 
             webView.loadUrl("https://polyhome.lesmoulinsdudev.com/?houseId=${houseId}")
         }
@@ -80,12 +98,42 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
-    private fun initDevicesCards(houseId: Int) {
+    private fun getDevicesList(houseId: Int) {
         if (houseId == -1) {
             return
         }
+        val token = TokenManager(this).getToken()
 
+        Api().get<DevicesResponse>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices", ::successDevicesList, token)
 
+    }
+
+    private fun successDevicesList(responseCode: Int, response: DevicesResponse?) {
+        when(responseCode) {
+            200 -> {
+                runOnUiThread {
+                    initListCards(response?.devices ?: emptyList())
+                }
+            }
+
+            400 -> {
+                Toast.makeText(this,"Données fournies incorrectes",Toast.LENGTH_SHORT).show()
+            }
+
+            403 -> {
+                Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+            }
+
+            500 -> {
+                Toast.makeText(this,"Erreur serveur",Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun initListCards(devices: List<DeviceData>) {
+        devicesList.clear()
+        devicesList.addAll(devices)
+        adapter.notifyDataSetChanged()
     }
 
     fun goToHouses(view: View) {
