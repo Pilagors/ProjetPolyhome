@@ -1,6 +1,6 @@
 package com.monfort.projetpolyhome.data
 
-data class Device(
+data class DeviceData(
     val id: String,
     val type: String,
     val availableCommands: List<String>,
