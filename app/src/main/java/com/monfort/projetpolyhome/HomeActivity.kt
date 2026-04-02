@@ -25,7 +25,6 @@ import com.monfort.projetpolyhome.utils.TokenManager
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var webView : WebView
-
     lateinit var adapter : DeviceAdapter
     val devicesList : ArrayList<DeviceData> = ArrayList()
 
@@ -147,7 +146,7 @@ class HomeActivity : AppCompatActivity() {
     private fun initListCards(devices: List<DeviceData>) {
         devicesList.clear()
         devicesList.addAll(devices)
-        adapter.notifyDataSetChanged()
+        adapter.update(devicesList)
     }
 
     fun goToHouses(view: View) {

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.monfort.projetpolyhome.R
 import com.monfort.projetpolyhome.data.DeviceData
@@ -16,12 +17,16 @@ class DeviceAdapter(
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
+    //     key        value
+    // map<type, liste_de_controles>
+    private var groups: List<Map.Entry<String, List<DeviceData>>> = devices.groupBy { it.type }.entries.toList()
+
     override fun getCount(): Int {
-        return devices.size
+        return groups.size
     }
 
-    override fun getItem(position: Int): DeviceData? {
-        return devices[position]
+    override fun getItem(position: Int): Any? {
+        return groups[position]
     }
 
     override fun getItemId(position: Int): Long {
@@ -30,14 +35,30 @@ class DeviceAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
         val rowView = inflater.inflate(R.layout.home_list_item, parent, false)
-        val device = getItem(position)
 
-        val deviceIdText = rowView.findViewById<TextView>(R.id.deviceIdText)
-        deviceIdText.text = device?.id
+        val group = groups[position]
+        val devices = group.value
 
+        val devicesContainer = rowView.findViewById<LinearLayout>(R.id.devicesContainer)
         val deviceTypeText = rowView.findViewById<TextView>(R.id.deviceTypeText)
-        deviceTypeText.text = device?.type
+
+        deviceTypeText.text = group.key
+        devicesContainer.removeAllViews()
+
+        for (device in devices) {
+            val row = TextView(context).apply {
+                text = device.id
+                textSize = 16f
+            }
+
+            devicesContainer.addView(row)
+        }
 
         return rowView
+    }
+
+    fun update(newDevices: List<DeviceData>) {
+        groups = newDevices.groupBy { it.type }.entries.toList()
+        notifyDataSetChanged()
     }
 }
