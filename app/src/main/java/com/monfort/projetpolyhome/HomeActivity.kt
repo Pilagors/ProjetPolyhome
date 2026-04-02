@@ -78,6 +78,20 @@ class HomeActivity : AppCompatActivity() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
 
+                    val js = """
+                        (function() {
+                            const div = document.getElementsByClassName('controls')[0];
+                            const check = document.getElementById('chkDisableShadows');
+                            if (check && div) {
+                                div.style.display = 'none';
+                                check.checked = true;
+                            }
+                        })();
+                         
+                    """.trimIndent()
+
+                    webView.evaluateJavascript(js, null)
+
                     webView.postDelayed({
                         getDevicesList(houseId)
                     }, 3000)
