@@ -2,6 +2,7 @@ package com.monfort.projetpolyhome
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ListView
@@ -11,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.monfort.projetpolyhome.adapters.UserAdapter
-import com.monfort.projetpolyhome.data.HouseData
+import com.monfort.projetpolyhome.data.UserRequest
 import com.monfort.projetpolyhome.data.UserData
 import com.monfort.projetpolyhome.utils.Api
 import com.monfort.projetpolyhome.utils.HouseIdManager
@@ -19,7 +20,6 @@ import com.monfort.projetpolyhome.utils.TokenManager
 
 class UsersActivity : AppCompatActivity() {
     val usersInfos : ArrayList<UserData> = ArrayList()
-    val housesInfos : ArrayList<HouseData> = ArrayList()
 
     lateinit var adapter: UserAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +58,6 @@ class UsersActivity : AppCompatActivity() {
         val pickedHouse = HouseIdManager(this).getHouseId()
         if (pickedHouse != -1){
             Api().get<List<UserData>>("https://polyhome.lesmoulinsdudev.com/api/houses/${pickedHouse}/users",::successFetchUsers,token)
-
         }
     }
 
@@ -66,7 +65,8 @@ class UsersActivity : AppCompatActivity() {
         runOnUiThread {
             when(responseCode) {
                 200 -> {
-                    if (!response.isNullOrEmpty()) {
+                    if (response != null) {
+                        usersInfos.clear()
                         usersInfos.addAll(response)
                         adapter.notifyDataSetChanged()
                     }
@@ -82,15 +82,134 @@ class UsersActivity : AppCompatActivity() {
     }
 
     private fun initOwnerButton(){
-        val caca = findViewById<Button>(R.id.AddUsersFromHouseButton)
-        val pipi = findViewById<Button>(R.id.DeleteUsersFromHouseButton)
+        val add = findViewById<Button>(R.id.AddUsersFromHouseButton)
+        val delete = findViewById<Button>(R.id.DeleteUsersFromHouseButton)
         if (HouseIdManager(this).isOwner()){
-            pipi.visibility = View.VISIBLE
-            caca.visibility = View.VISIBLE
+            add.visibility = View.VISIBLE
+            add.setOnClickListener {
+                showAddUserDialog()
+            }
+            delete.visibility = View.VISIBLE
+            delete.setOnClickListener {
+                showDeleteUserDialog()
+            }
         }
         else {
-            pipi.visibility = View.INVISIBLE
-            caca.visibility = View.INVISIBLE
+            add.visibility = View.INVISIBLE
+            delete.visibility = View.INVISIBLE
         }
     }
+
+    private fun addUsers(user: String){
+        val token = TokenManager(this).getToken()
+        val pickedHouse = HouseIdManager(this).getHouseId()
+        if (pickedHouse != -1){
+
+            val dataUser = UserRequest(user)
+            Api().post<UserRequest, UserData>("https://polyhome.lesmoulinsdudev.com/api/houses/${pickedHouse}/users",dataUser,::successAddUser,token)
+        }
+    }
+
+    private fun successAddUser(responseCode : Int, response : UserData?){
+        runOnUiThread {
+            //Log.d("API_ADD","code ${responseCode}")
+            when(responseCode) {
+                200,201 -> {
+                    fetchUsers()
+                    Toast.makeText(this,"user added",Toast.LENGTH_SHORT).show()
+                }
+                404 -> {
+                    Toast.makeText(this,"User not found", Toast.LENGTH_SHORT).show()
+                }
+                403 -> {
+                    Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+                }
+                500 -> {
+                    Toast.makeText(this,"erreur serveur",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun deleteUser(user: String){
+        val token = TokenManager(this).getToken()
+        val pickedHouse = HouseIdManager(this).getHouseId()
+        if (pickedHouse != -1){
+
+            val dataUser = UserRequest(user)
+            Api().delete("https://polyhome.lesmoulinsdudev.com/api/houses/${pickedHouse}/users",dataUser,::successDeleteUser,token)
+        }
+    }
+
+    private fun successDeleteUser(responseCode : Int){
+        runOnUiThread {
+            //Log.d("API_DELETE","code ${responseCode}")
+            when(responseCode) {
+                200 -> {
+                    Toast.makeText(this,"user deleted",Toast.LENGTH_SHORT).show()
+                    fetchUsers()
+                }
+                404 -> {
+                    Toast.makeText(this,"User not found", Toast.LENGTH_SHORT).show()
+                }
+                403 -> {
+                    Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+                }
+                500 -> {
+                    Toast.makeText(this,"erreur serveur",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun showAddUserDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("Ajouter un utilisateur")
+        builder.setMessage("Entrez l'identifiant du nouvel utilisateur :")
+
+        val input = android.widget.EditText(this)
+        input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+        builder.setView(input)
+
+        builder.setPositiveButton("Ajouter") { dialog, _ ->
+            val userInput = input.text.toString().trim()
+
+            if (userInput.isNotEmpty()) {
+                addUsers(userInput)
+            } else {
+                Toast.makeText(this, "Le champ ne peut pas être vide", Toast.LENGTH_SHORT).show()
+            }
+        }
+        builder.setNegativeButton("Annuler") { dialog, _ ->
+            dialog.cancel()
+        }
+        builder.show()
+    }
+
+    private fun showDeleteUserDialog() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("Supprimer un utilisateur")
+        builder.setMessage("Entrez l'identifiant de l'utilisateur :")
+
+        val input = android.widget.EditText(this)
+        input.inputType = android.text.InputType.TYPE_CLASS_TEXT
+        builder.setView(input)
+
+        builder.setPositiveButton("Supprimer") { dialog, _ ->
+            val userInput = input.text.toString().trim()
+
+            if (userInput.isNotEmpty()) {
+                deleteUser(userInput)
+            } else {
+                Toast.makeText(this, "Le champ ne peut pas être vide", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        builder.setNegativeButton("Annuler") { dialog, _ ->
+            dialog.cancel()
+        }
+
+        builder.show()
+    }
 }
+
