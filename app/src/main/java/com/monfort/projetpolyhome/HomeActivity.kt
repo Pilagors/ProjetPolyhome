@@ -2,10 +2,12 @@ package com.monfort.projetpolyhome
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -24,12 +26,18 @@ class HomeActivity : AppCompatActivity() {
             insets
         }
 
-        viewHouse()
     }
 
-    private fun viewHouse() {
+    override fun onResume() {
+        super.onResume()
+
         val houseId = HouseIdManager(this).getHouseId()
 
+        viewHouse(houseId)
+        refreshHouseIdView(houseId)
+    }
+
+    private fun viewHouse(houseId: Int) {
         val webView = findViewById<WebView>(R.id.houseView)
 
         if (houseId == -1) {
@@ -47,6 +55,16 @@ class HomeActivity : AppCompatActivity() {
 
             webView.loadUrl("https://polyhome.lesmoulinsdudev.com/?houseId=${houseId}")
         }
+    }
+
+    private fun refreshHouseIdView(houseId: Int) {
+        val houseIdView = findViewById<TextView>(R.id.houseIdView)
+        if (houseId != -1) {
+            houseIdView.text = "Polyhome $houseId"
+        } else {
+            houseIdView.text = "Polyhome inconnue"
+        }
+
     }
 
     fun goToHouses(view: View) {
