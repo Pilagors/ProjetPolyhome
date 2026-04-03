@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F7F7"
+    android:background="#F0FAFB"
     tools:context=".MainActivity">
 
     <View
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:text="Bienvenue"
-        android:textColor="#004d40"
+        android:textColor="#00363E"
         android:textSize="32sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,7 +61,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Connectez-vous pour continuer"
-        android:textColor="#558b2f"
+        android:textColor="#CBF0F4"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
