@@ -36,6 +36,8 @@ class HomeActivity : AppCompatActivity() {
             insets
         }
 
+        this.webView = findViewById<WebView>(R.id.houseView)
+
         this.adapter = DeviceAdapter(this, devicesList, ::deviceButtonCommand)
 
         initList()
@@ -52,10 +54,6 @@ class HomeActivity : AppCompatActivity() {
 
     private fun initList() {
         val listView = findViewById<ListView>(R.id.middleListView)
-        val header = layoutInflater.inflate(R.layout.header_home_list_view, listView, false)
-        this.webView = header.findViewById<WebView>(R.id.houseView)
-
-        listView.addHeaderView(header)
         listView.adapter = adapter
     }
 
