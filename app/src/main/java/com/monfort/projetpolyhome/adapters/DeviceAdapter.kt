@@ -9,16 +9,12 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.monfort.projetpolyhome.R
-import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
-import com.monfort.projetpolyhome.utils.Api
-import com.monfort.projetpolyhome.utils.HouseIdManager
-import com.monfort.projetpolyhome.utils.TokenManager
-import org.w3c.dom.Text
 
 class DeviceAdapter(
     val context: Context,
-    val devices: List<DeviceData>
+    val devices: List<DeviceData>,
+    val command: (device: DeviceData, command: String) -> Unit
 ) : BaseAdapter() {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -56,7 +52,8 @@ class DeviceAdapter(
             commandView.findViewById<TextView>(R.id.deviceId).text = device.id
 
             val btnLayout = commandView.findViewById<LinearLayout>(R.id.btnLayout)
-            commandView.findViewById<TextView>(R.id.deviceId).text = device.id
+
+            val btnMap : MutableMap<String, Button> = mutableMapOf()
 
             for (command in device.availableCommands) {
                 val btn = Button(context).apply {
@@ -64,10 +61,12 @@ class DeviceAdapter(
                     layoutParams = LinearLayout.LayoutParams(
                         0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
                     )
-                    setOnClickListener { buttonCommand(device, command) }
+                    setOnClickListener { command(device, command) }
                 }
                 btnLayout.addView(btn)
+                btnMap[command] = btn
             }
+            customButtonVisibility(device, btnMap)
 
             devicesContainer.addView(commandView)
         }
@@ -80,18 +79,28 @@ class DeviceAdapter(
         notifyDataSetChanged()
     }
 
-    fun buttonCommand(device: DeviceData, command: String) {
-        val token = TokenManager(context).getToken()
-        val houseId = HouseIdManager(context).getHouseId()
+    fun customButtonVisibility(device: DeviceData, btnMap: Map<String, Button>) {
+        val opening = device.opening
+        val openingMode = device.openingMode
+        val power = device.power
 
-        Api().post<CommandData>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/${device.id}/command",
-            CommandData(command),
-            ::successButtonCommand,
-            token)
+        if (power != null) {
+            when {
+                power == 0 -> btnMap["TURN OFF"]?.visibility = View.GONE
+                power == 1 -> btnMap["TURN ON"]?.visibility = View.GONE
+            }
+        }
 
+        if (opening != null) {
+            when {
+                openingMode == 0 -> {
+                    btnMap["OPEN"]?.visibility = View.GONE
+                }
+                openingMode == 1 -> {
+                    btnMap["CLOSE"]?.visibility = View.GONE
+                }
+            }
+        }
     }
 
-    private fun successButtonCommand(responseCode: Int) {
-
-    }
 }

@@ -2,7 +2,6 @@ package com.monfort.projetpolyhome
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -14,8 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.monfort.projetpolyhome.adapters.DeviceAdapter
-import com.monfort.projetpolyhome.adapters.HouseAdapter
-import com.monfort.projetpolyhome.components.CustomWebView
+import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
 import com.monfort.projetpolyhome.data.DevicesResponse
 import com.monfort.projetpolyhome.utils.Api
@@ -38,7 +36,7 @@ class HomeActivity : AppCompatActivity() {
             insets
         }
 
-        this.adapter = DeviceAdapter(this, devicesList)
+        this.adapter = DeviceAdapter(this, devicesList, ::deviceButtonCommand)
 
         initList()
     }
@@ -124,9 +122,7 @@ class HomeActivity : AppCompatActivity() {
     private fun successDevicesList(responseCode: Int, response: DevicesResponse?) {
         when(responseCode) {
             200 -> {
-                runOnUiThread {
-                    initListCards(response?.devices ?: emptyList())
-                }
+                initListCards(response?.devices ?: emptyList())
             }
 
             400 -> {
@@ -143,10 +139,27 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    fun deviceButtonCommand(device: DeviceData, command: String) {
+        val token = TokenManager(this).getToken()
+        val houseId = HouseIdManager(this).getHouseId()
+
+        Api().post<CommandData>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/${device.id}/command",
+            CommandData(command),
+            ::successButtonCommand,
+            token)
+    }
+
+    private fun successButtonCommand(responseCode: Int) {
+        val houseId = HouseIdManager(this).getHouseId()
+        getDevicesList(houseId)
+    }
+
     private fun initListCards(devices: List<DeviceData>) {
-        devicesList.clear()
-        devicesList.addAll(devices)
-        adapter.update(devicesList)
+        runOnUiThread {
+            devicesList.clear()
+            devicesList.addAll(devices)
+            adapter.update(devicesList)
+        }
     }
 
     fun goToHouses(view: View) {
