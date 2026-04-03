@@ -6,7 +6,7 @@ data class DeviceData(
     val availableCommands: List<String>,
 
     // pas dispo pour toutes les commandes
-    val opening: Int? = null,
+    val opening: Float? = null,
     val openingMode: Int? = null,
     val power: Int? = null
 )
