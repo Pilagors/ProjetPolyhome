@@ -16,4 +16,8 @@ class HouseIdManager(context: Context) {
     fun getHouseId(): Int {
         return prefs.getInt(HOUSE_ID_KEY, -1)
     }
+
+    fun logout() {
+        prefs.edit().remove(HOUSE_ID_KEY).apply()
+    }
 }

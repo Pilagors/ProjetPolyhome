@@ -62,6 +62,7 @@ class HomeActivity : AppCompatActivity() {
             webView.visibility = View.INVISIBLE
 
         } else {
+            webView.visibility = View.VISIBLE
 
             val settings = webView.settings
             settings.javaScriptEnabled = true
@@ -167,6 +168,7 @@ class HomeActivity : AppCompatActivity() {
 
     fun logout(view: View) {
         TokenManager(this).logout()
+        HouseIdManager(this).logout()
 
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
