@@ -15,6 +15,7 @@
         app:srcCompat="@drawable/user_icon" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="200dp"
         android:layout_height="60dp"
         android:orientation="vertical"
@@ -31,5 +32,15 @@
             android:layout_width="match_parent"
             android:layout_height="30dp" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="6dp"
+        android:text="Delete"
+        app:layout_constraintStart_toEndOf="@+id/linearLayout"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
