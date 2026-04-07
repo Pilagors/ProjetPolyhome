@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.monfort.projetpolyhome.adapters.DeviceAdapter
 import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
@@ -20,12 +21,15 @@ import com.monfort.projetpolyhome.data.DevicesResponse
 import com.monfort.projetpolyhome.utils.Api
 import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class HomeActivity : AppCompatActivity() {
 
-    private lateinit var webView : WebView
-    lateinit var adapter : DeviceAdapter
-    val devicesList : ArrayList<DeviceData> = ArrayList()
+    private lateinit var webView: WebView
+    lateinit var adapter: DeviceAdapter
+    val devicesList: ArrayList<DeviceData> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,23 +79,25 @@ class HomeActivity : AppCompatActivity() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
 
-                    val js = """
-                        (function() {
-                            const div = document.getElementsByClassName('controls')[0];
-                            const check = document.getElementById('chkDisableShadows');
-                            if (check && div) {
-                                div.style.display = 'none';
-                                check.checked = true;
-                            }
-                        })();
-                         
-                    """.trimIndent()
-
-                    webView.evaluateJavascript(js, null)
-
                     webView.postDelayed({
-                        getDevicesList(houseId)
-                    }, 3000)
+                        val js = """
+                            (function() {
+                                const div = document.getElementsByClassName('controls')[0];
+                                const check = document.getElementById('chkDisableShadows');
+                                if (check && div) {
+                                    div.style.display = 'none';
+                                    if (check.checked === false) {
+                                        check.click();
+                                    }
+                                }
+                            })();
+                             
+                        """.trimIndent()
+
+                        webView.evaluateJavascript(js, null)
+
+                        getDevicesListAsync(houseId)
+                    }, 500)
                 }
             }
 
@@ -109,32 +115,45 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
+    private fun getDevicesListAsync(houseId: Int) {
+        lifecycleScope.launch {
+            while (isActive) {
+                getDevicesList(houseId)
+                delay(1000)
+            }
+        }
+    }
+
     private fun getDevicesList(houseId: Int) {
         if (houseId == -1) {
             return
         }
         val token = TokenManager(this).getToken()
 
-        Api().get<DevicesResponse>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices", ::successDevicesList, token)
+        Api().get<DevicesResponse>(
+            "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices",
+            ::successDevicesList,
+            token
+        )
 
     }
 
     private fun successDevicesList(responseCode: Int, response: DevicesResponse?) {
-        when(responseCode) {
+        when (responseCode) {
             200 -> {
                 initListCards(response?.devices ?: emptyList())
             }
 
             400 -> {
-                Toast.makeText(this,"Données fournies incorrectes",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Données fournies incorrectes", Toast.LENGTH_SHORT).show()
             }
 
             403 -> {
-                Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Accès refusé", Toast.LENGTH_SHORT).show()
             }
 
             500 -> {
-                Toast.makeText(this,"Erreur serveur",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Erreur serveur", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -143,10 +162,12 @@ class HomeActivity : AppCompatActivity() {
         val token = TokenManager(this).getToken()
         val houseId = HouseManager(this).getHouseId()
 
-        Api().post<CommandData>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/${device.id}/command",
+        Api().post<CommandData>(
+            "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/${device.id}/command",
             CommandData(command),
             ::successButtonCommand,
-            token)
+            token
+        )
     }
 
     private fun successButtonCommand(responseCode: Int) {
@@ -167,7 +188,7 @@ class HomeActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun goToUserActivity(view: View){
+    fun goToUserActivity(view: View) {
         val intent = Intent(this, UsersActivity::class.java)
         startActivity(intent)
     }
