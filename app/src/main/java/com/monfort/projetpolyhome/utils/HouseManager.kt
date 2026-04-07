@@ -27,4 +27,8 @@ class HouseManager(context: Context) {
     fun isOwner() : Boolean{
         return prefOwner.getBoolean(HOUSE_OWNER_KEY,false)
     }
+
+    fun logout() {
+        prefId.edit().remove(HOUSE_ID_KEY).apply()
+    }
 }
