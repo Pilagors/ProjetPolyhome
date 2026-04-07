@@ -9,7 +9,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.monfort.projetpolyhome.R
 import com.monfort.projetpolyhome.data.HouseData
-import com.monfort.projetpolyhome.utils.HouseIdManager
+import com.monfort.projetpolyhome.utils.HouseManager
 
 class HouseAdapter(
     private val context : Context,
@@ -39,7 +39,7 @@ class HouseAdapter(
         rowView.findViewById<TextView>(R.id.isOwner).visibility = if(current?.owner == true) View.VISIBLE else View.INVISIBLE
 
         // Changement visiblité si selectionné
-        val houseId = HouseIdManager(context).getHouseId()
+        val houseId = HouseManager(context).getHouseId()
 
         if (current?.houseId == houseId) {
             rowView.setBackgroundColor(Color.parseColor("#D3E3FC"))
@@ -50,8 +50,8 @@ class HouseAdapter(
         // onClickListener
         rowView.setOnClickListener {
             current?.let {
-                HouseIdManager(context).saveHouseId(it.houseId)
-
+                HouseManager(context).saveHouseId(it.houseId)
+                HouseManager(context).saveOwner(it.owner)
                 notifyDataSetChanged()
             }
         }

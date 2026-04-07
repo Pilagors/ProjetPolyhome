@@ -18,7 +18,7 @@ import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
 import com.monfort.projetpolyhome.data.DevicesResponse
 import com.monfort.projetpolyhome.utils.Api
-import com.monfort.projetpolyhome.utils.HouseIdManager
+import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
 
 class HomeActivity : AppCompatActivity() {
@@ -47,7 +47,7 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val houseId = HouseIdManager(this).getHouseId()
+        val houseId = HouseManager(this).getHouseId()
 
         viewHouse(houseId, webView)
         refreshHouseIdView(houseId)
@@ -140,7 +140,7 @@ class HomeActivity : AppCompatActivity() {
 
     fun deviceButtonCommand(device: DeviceData, command: String) {
         val token = TokenManager(this).getToken()
-        val houseId = HouseIdManager(this).getHouseId()
+        val houseId = HouseManager(this).getHouseId()
 
         Api().post<CommandData>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/${device.id}/command",
             CommandData(command),
@@ -149,7 +149,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun successButtonCommand(responseCode: Int) {
-        val houseId = HouseIdManager(this).getHouseId()
+        val houseId = HouseManager(this).getHouseId()
         getDevicesList(houseId)
     }
 
