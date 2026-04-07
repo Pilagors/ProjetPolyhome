@@ -2,7 +2,6 @@ package com.monfort.projetpolyhome
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ListView
@@ -15,7 +14,7 @@ import com.monfort.projetpolyhome.adapters.UserAdapter
 import com.monfort.projetpolyhome.data.UserRequest
 import com.monfort.projetpolyhome.data.UserData
 import com.monfort.projetpolyhome.utils.Api
-import com.monfort.projetpolyhome.utils.HouseIdManager
+import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
 
 class UsersActivity : AppCompatActivity() {
@@ -32,7 +31,9 @@ class UsersActivity : AppCompatActivity() {
             insets
         }
 
-        adapter = UserAdapter(this,usersInfos)
+        adapter = UserAdapter(this,usersInfos) { user ->
+            deleteUser(user)
+        }
         initButton()
         fetchUsers()
         initOwnerButton()
@@ -55,7 +56,7 @@ class UsersActivity : AppCompatActivity() {
 
     private fun fetchUsers(){
         val token = TokenManager(this).getToken()
-        val pickedHouse = HouseIdManager(this).getHouseId()
+        val pickedHouse = HouseManager(this).getHouseId()
         if (pickedHouse != -1){
             Api().get<List<UserData>>("https://polyhome.lesmoulinsdudev.com/api/houses/${pickedHouse}/users",::successFetchUsers,token)
         }
@@ -83,26 +84,20 @@ class UsersActivity : AppCompatActivity() {
 
     private fun initOwnerButton(){
         val add = findViewById<Button>(R.id.AddUsersFromHouseButton)
-        val delete = findViewById<Button>(R.id.DeleteUsersFromHouseButton)
-        if (HouseIdManager(this).isOwner()){
+        if (HouseManager(this).isOwner()){
             add.visibility = View.VISIBLE
             add.setOnClickListener {
                 showAddUserDialog()
             }
-            delete.visibility = View.VISIBLE
-            delete.setOnClickListener {
-                showDeleteUserDialog()
-            }
         }
         else {
             add.visibility = View.INVISIBLE
-            delete.visibility = View.INVISIBLE
         }
     }
 
     private fun addUsers(user: String){
         val token = TokenManager(this).getToken()
-        val pickedHouse = HouseIdManager(this).getHouseId()
+        val pickedHouse = HouseManager(this).getHouseId()
         if (pickedHouse != -1){
 
             val dataUser = UserRequest(user)
@@ -112,7 +107,6 @@ class UsersActivity : AppCompatActivity() {
 
     private fun successAddUser(responseCode : Int, response : UserData?){
         runOnUiThread {
-            //Log.d("API_ADD","code ${responseCode}")
             when(responseCode) {
                 200,201 -> {
                     fetchUsers()
@@ -133,7 +127,7 @@ class UsersActivity : AppCompatActivity() {
 
     private fun deleteUser(user: String){
         val token = TokenManager(this).getToken()
-        val pickedHouse = HouseIdManager(this).getHouseId()
+        val pickedHouse = HouseManager(this).getHouseId()
         if (pickedHouse != -1){
 
             val dataUser = UserRequest(user)
@@ -143,7 +137,6 @@ class UsersActivity : AppCompatActivity() {
 
     private fun successDeleteUser(responseCode : Int){
         runOnUiThread {
-            //Log.d("API_DELETE","code ${responseCode}")
             when(responseCode) {
                 200 -> {
                     Toast.makeText(this,"user deleted",Toast.LENGTH_SHORT).show()
@@ -183,32 +176,6 @@ class UsersActivity : AppCompatActivity() {
         builder.setNegativeButton("Annuler") { dialog, _ ->
             dialog.cancel()
         }
-        builder.show()
-    }
-
-    private fun showDeleteUserDialog() {
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-        builder.setTitle("Supprimer un utilisateur")
-        builder.setMessage("Entrez l'identifiant de l'utilisateur :")
-
-        val input = android.widget.EditText(this)
-        input.inputType = android.text.InputType.TYPE_CLASS_TEXT
-        builder.setView(input)
-
-        builder.setPositiveButton("Supprimer") { dialog, _ ->
-            val userInput = input.text.toString().trim()
-
-            if (userInput.isNotEmpty()) {
-                deleteUser(userInput)
-            } else {
-                Toast.makeText(this, "Le champ ne peut pas être vide", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        builder.setNegativeButton("Annuler") { dialog, _ ->
-            dialog.cancel()
-        }
-
         builder.show()
     }
 }

@@ -2,7 +2,7 @@ package com.monfort.projetpolyhome.utils
 
 import android.content.Context
 
-class HouseIdManager(context: Context) {
+class HouseManager(context: Context) {
     private val prefId = context.getSharedPreferences("houseId", Context.MODE_PRIVATE)
     private val prefOwner = context.getSharedPreferences("owner", Context.MODE_PRIVATE)
 
