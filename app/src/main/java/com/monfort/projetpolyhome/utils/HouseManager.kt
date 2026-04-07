@@ -16,7 +16,7 @@ class HouseManager(context: Context) {
         prefId.edit().putInt(HOUSE_ID_KEY, houseId).apply()
     }
 
-    fun getHouseId(): Int? {
+    fun getHouseId(): Int {
         return prefId.getInt(HOUSE_ID_KEY, -1)
     }
 

@@ -4,13 +4,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.ListView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.monfort.projetpolyhome.adapters.DeviceAdapter
+import com.monfort.projetpolyhome.data.CommandData
+import com.monfort.projetpolyhome.data.DeviceData
+import com.monfort.projetpolyhome.data.DevicesResponse
+import com.monfort.projetpolyhome.utils.Api
+import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
 
 class HomeActivity : AppCompatActivity() {
+
+    private lateinit var webView : WebView
+    lateinit var adapter : DeviceAdapter
+    val devicesList : ArrayList<DeviceData> = ArrayList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -20,8 +36,129 @@ class HomeActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        initUsersButton()
-        initLogoutButton()
+
+        this.webView = findViewById<WebView>(R.id.houseView)
+
+        this.adapter = DeviceAdapter(this, devicesList, ::deviceButtonCommand)
+
+        initList()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val houseId = HouseManager(this).getHouseId()
+
+        viewHouse(houseId, webView)
+        refreshHouseIdView(houseId)
+    }
+
+    private fun initList() {
+        val listView = findViewById<ListView>(R.id.middleListView)
+        listView.adapter = adapter
+    }
+
+    private fun viewHouse(houseId: Int, webView: WebView) {
+        if (houseId == -1) {
+            webView.visibility = View.INVISIBLE
+
+        } else {
+
+            val settings = webView.settings
+            settings.javaScriptEnabled = true
+            settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+            settings.domStorageEnabled = true
+
+            webView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+
+                    val js = """
+                        (function() {
+                            const div = document.getElementsByClassName('controls')[0];
+                            const check = document.getElementById('chkDisableShadows');
+                            if (check && div) {
+                                div.style.display = 'none';
+                                check.checked = true;
+                            }
+                        })();
+                         
+                    """.trimIndent()
+
+                    webView.evaluateJavascript(js, null)
+
+                    webView.postDelayed({
+                        getDevicesList(houseId)
+                    }, 3000)
+                }
+            }
+
+            webView.loadUrl("https://polyhome.lesmoulinsdudev.com/?houseId=${houseId}")
+        }
+    }
+
+    private fun refreshHouseIdView(houseId: Int) {
+        val houseIdView = findViewById<TextView>(R.id.houseIdView)
+        if (houseId != -1) {
+            houseIdView.text = "Polyhome $houseId"
+        } else {
+            houseIdView.text = "Polyhome inconnue"
+        }
+
+    }
+
+    private fun getDevicesList(houseId: Int) {
+        if (houseId == -1) {
+            return
+        }
+        val token = TokenManager(this).getToken()
+
+        Api().get<DevicesResponse>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices", ::successDevicesList, token)
+
+    }
+
+    private fun successDevicesList(responseCode: Int, response: DevicesResponse?) {
+        when(responseCode) {
+            200 -> {
+                initListCards(response?.devices ?: emptyList())
+            }
+
+            400 -> {
+                Toast.makeText(this,"Données fournies incorrectes",Toast.LENGTH_SHORT).show()
+            }
+
+            403 -> {
+                Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+            }
+
+            500 -> {
+                Toast.makeText(this,"Erreur serveur",Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun deviceButtonCommand(device: DeviceData, command: String) {
+        val token = TokenManager(this).getToken()
+        val houseId = HouseManager(this).getHouseId()
+
+        Api().post<CommandData>("https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/${device.id}/command",
+            CommandData(command),
+            ::successButtonCommand,
+            token)
+    }
+
+    private fun successButtonCommand(responseCode: Int) {
+        val houseId = HouseManager(this).getHouseId()
+        getDevicesList(houseId)
+    }
+
+    private fun initListCards(devices: List<DeviceData>) {
+        runOnUiThread {
+            devicesList.clear()
+            devicesList.addAll(devices)
+            adapter.update(devicesList)
+        }
     }
 
     fun goToHouses(view: View) {
@@ -29,20 +166,12 @@ class HomeActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun initLogoutButton() {
-        val btnLogout = findViewById<Button>(R.id.btnLogout)
-        btnLogout.setOnClickListener { logout() }
-    }
-
-    private fun initUsersButton(){
-        findViewById<Button>(R.id.goToUserActivityFromHome).setOnClickListener { goToUserActivity() }
-    }
-
-    private fun goToUserActivity(){
+    fun goToUserActivity(view: View){
         val intent = Intent(this, UsersActivity::class.java)
         startActivity(intent)
     }
-    private fun logout() {
+
+    fun logout(view: View) {
         TokenManager(this).logout()
 
         val intent = Intent(this, MainActivity::class.java)
