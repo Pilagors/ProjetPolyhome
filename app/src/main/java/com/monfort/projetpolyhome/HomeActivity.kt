@@ -3,6 +3,7 @@ package com.monfort.projetpolyhome
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ListView
@@ -35,6 +36,8 @@ class HomeActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        initUsersButton()
+        initLogoutButton()
 
         this.webView = findViewById<WebView>(R.id.houseView)
 
@@ -165,6 +168,20 @@ class HomeActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun initLogoutButton() {
+        val btnLogout = findViewById<Button>(R.id.btnLogout)
+        btnLogout.setOnClickListener { logout() }
+    }
+
+    private fun initUsersButton(){
+        findViewById<Button>(R.id.goToUserActivityFromHome).setOnClickListener { goToUserActivity() }
+    }
+
+    private fun goToUserActivity(){
+        val intent = Intent(this, UsersActivity::class.java)
+        startActivity(intent)
+    }
+    private fun logout() {
     fun logout(view: View) {
         TokenManager(this).logout()
 
