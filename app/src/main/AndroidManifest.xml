@@ -17,6 +17,9 @@
             android:name=".HousesActivity"
             android:exported="false" />
         <activity
+            android:name=".UsersActivity"
+            android:exported="false" />
+        <activity
             android:name=".HomeActivity"
             android:exported="false" />
         <activity
