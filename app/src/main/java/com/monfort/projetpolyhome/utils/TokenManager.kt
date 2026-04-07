@@ -10,7 +10,6 @@ class TokenManager(context: Context) {
         private const val TOKEN_KEY = "token"
     }
 
-    @SuppressLint("UseKtx")
     fun saveToken(token: String) {
         prefs.edit().putString(TOKEN_KEY, token).apply()
     }
