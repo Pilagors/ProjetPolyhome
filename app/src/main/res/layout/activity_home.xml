@@ -60,27 +60,16 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/goToUserActivityFromHome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="108dp"
-        android:text="Users"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
-            android:id="@+id/btnLogout"
+            android:id="@+id/btnUsers"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:onClick="logout"
-            app:srcCompat="@drawable/disconnect_icon" />
+            android:onClick="goToUserActivity"
+            app:srcCompat="@drawable/users_icons"
+            />
 
         <ImageButton
             android:id="@+id/btnHouses"
@@ -89,5 +78,13 @@
             android:layout_weight="1"
             android:onClick="goToHouses"
             app:srcCompat="@drawable/houses_icon" />
+
+        <ImageButton
+            android:id="@+id/btnLogout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="logout"
+            app:srcCompat="@drawable/disconnect_icon" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
