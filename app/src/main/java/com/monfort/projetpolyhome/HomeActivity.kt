@@ -3,7 +3,6 @@ package com.monfort.projetpolyhome
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ListView
@@ -21,6 +20,8 @@ import com.monfort.projetpolyhome.data.DevicesResponse
 import com.monfort.projetpolyhome.utils.Api
 import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -30,6 +31,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     lateinit var adapter: DeviceAdapter
     val devicesList: ArrayList<DeviceData> = ArrayList()
+
+    private var poll: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +61,11 @@ class HomeActivity : AppCompatActivity() {
             viewHouse(houseId, webView)
         }
         refreshHouseIdView(houseId)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        poll?.cancel()
     }
 
     private fun initList() {
@@ -118,8 +126,10 @@ class HomeActivity : AppCompatActivity() {
 
     }
 
-    private fun getDevicesListAsync(houseId: Int) {
-        lifecycleScope.launch {
+    private fun getDevicesListAsync(houseId: Int, delay: Long = 0) {
+        poll?.cancel()
+        poll = lifecycleScope.launch {
+            delay(delay)
             while (isActive) {
                 getDevicesList(houseId)
                 delay(3000)
@@ -158,6 +168,8 @@ class HomeActivity : AppCompatActivity() {
 
                 500 -> {
                     Toast.makeText(this, "Erreur serveur", Toast.LENGTH_SHORT).show()
+                    poll?.cancel()
+                    getDevicesListAsync(HouseManager(this).getHouseId(), 10000)
                 }
             }
         }
