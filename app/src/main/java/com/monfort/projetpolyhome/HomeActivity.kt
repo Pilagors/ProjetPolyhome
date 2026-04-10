@@ -51,9 +51,12 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val houseId = HouseManager(this).getHouseId()
+        val houseManager = HouseManager(this)
+        val houseId = houseManager.getHouseId()
 
-        viewHouse(houseId, webView)
+        if (houseManager.hasHouseIdChanged() || webView.url == null) {
+            viewHouse(houseId, webView)
+        }
         refreshHouseIdView(houseId)
     }
 
@@ -119,7 +122,7 @@ class HomeActivity : AppCompatActivity() {
         lifecycleScope.launch {
             while (isActive) {
                 getDevicesList(houseId)
-                delay(1000)
+                delay(3000)
             }
         }
     }
@@ -139,21 +142,23 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun successDevicesList(responseCode: Int, response: DevicesResponse?) {
-        when (responseCode) {
-            200 -> {
-                initListCards(response?.devices ?: emptyList())
-            }
+        runOnUiThread {
+            when (responseCode) {
+                200 -> {
+                    initListCards(response?.devices ?: emptyList())
+                }
 
-            400 -> {
-                Toast.makeText(this, "Données fournies incorrectes", Toast.LENGTH_SHORT).show()
-            }
+                400 -> {
+                    Toast.makeText(this, "Données fournies incorrectes", Toast.LENGTH_SHORT).show()
+                }
 
-            403 -> {
-                Toast.makeText(this, "Accès refusé", Toast.LENGTH_SHORT).show()
-            }
+                403 -> {
+                    Toast.makeText(this, "Accès refusé", Toast.LENGTH_SHORT).show()
+                }
 
-            500 -> {
-                Toast.makeText(this, "Erreur serveur", Toast.LENGTH_SHORT).show()
+                500 -> {
+                    Toast.makeText(this, "Erreur serveur", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -176,11 +181,10 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun initListCards(devices: List<DeviceData>) {
-        runOnUiThread {
-            devicesList.clear()
-            devicesList.addAll(devices)
-            adapter.update(devicesList)
-        }
+        devicesList.clear()
+        devicesList.addAll(devices)
+        adapter.update(devicesList)
+
     }
 
     fun goToHouses(view: View) {

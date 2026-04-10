@@ -31,10 +31,6 @@ class HousesActivity : AppCompatActivity() {
 
         fetchHouses()
     }
-
-    // workflow -> maisons (houseId, owner) ->
-
-    // recuperer les maisons
     private fun fetchHouses () {
         val token = TokenManager(this).getToken()
 

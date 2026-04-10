@@ -46,8 +46,7 @@ class UsersActivity : AppCompatActivity() {
     }
 
     private fun backToHome(){
-        val intent = Intent(this, HomeActivity::class.java)
-        startActivity(intent)
+        finish()
     }
 
     private fun initListUsers(){
