@@ -106,7 +106,6 @@ class HomeActivity : AppCompatActivity() {
         } else {
             houseIdView.text = "Polyhome inconnue"
         }
-
     }
 
     private fun getDevicesList(houseId: Int) {
@@ -120,23 +119,31 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun successDevicesList(responseCode: Int, response: DevicesResponse?) {
-        when(responseCode) {
-            200 -> {
-                initListCards(response?.devices ?: emptyList())
-            }
+        runOnUiThread {
+            when(responseCode) {
+                200 -> {
+                    initListCards(response?.devices ?: emptyList())
+                }
 
-            400 -> {
-                Toast.makeText(this,"Données fournies incorrectes",Toast.LENGTH_SHORT).show()
-            }
+                400 -> {
+                    Toast.makeText(this,"Données fournies incorrectes",Toast.LENGTH_SHORT).show()
+                }
 
-            403 -> {
-                Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
-            }
+                403 -> {
+                    Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+                    HouseManager(this).logout()
+                    val intent = Intent(this, HousesActivity::class.java)
+                    startActivity(intent)
+                    finish()
 
-            500 -> {
-                Toast.makeText(this,"Erreur serveur",Toast.LENGTH_SHORT).show()
+                }
+
+                500 -> {
+                    Toast.makeText(this,"Erreur serveur",Toast.LENGTH_SHORT).show()
+                }
             }
         }
+
     }
 
     fun deviceButtonCommand(device: DeviceData, command: String) {
