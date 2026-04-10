@@ -132,7 +132,7 @@ class HomeActivity : AppCompatActivity() {
             delay(delay)
             while (isActive) {
                 getDevicesList(houseId)
-                delay(3000)
+                delay(1000)
             }
         }
     }
