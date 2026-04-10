@@ -1,6 +1,7 @@
 package com.monfort.projetpolyhome
 
 import android.os.Bundle
+import android.view.View
 import android.widget.ListView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -59,5 +60,9 @@ class HousesActivity : AppCompatActivity() {
 
     private fun initListHouses() {
         findViewById<ListView>(R.id.listHomes).adapter = adapter
+    }
+
+    fun backToHome(view: View) {
+        finish()
     }
 }
