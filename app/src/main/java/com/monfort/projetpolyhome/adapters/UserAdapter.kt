@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.monfort.projetpolyhome.R
 import com.monfort.projetpolyhome.data.UserData
+import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
 
 class UserAdapter(
@@ -44,17 +45,24 @@ class UserAdapter(
         val delete = rowView.findViewById<Button>(R.id.deleteButton)
         if (user.owner == 1){
             ownerText.text = "Propriétaire"
-            delete.visibility = View.INVISIBLE
         }
         else {
             ownerText.text = ""
+        }
+
+        val isCurrentUserOwner = HouseManager(context).isOwner()
+
+        if (isCurrentUserOwner && user.owner !=1 ){
             delete.visibility = View.VISIBLE
             delete.setOnClickListener {
                 onDeleteClick(user.userLogin)
             }
         }
+        else {
+            delete.visibility = View.INVISIBLE
+            delete.setOnClickListener(null)
+        }
+
         return rowView
-
-
     }
 }
