@@ -216,6 +216,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun logout(view: View) {
+        poll?.cancel()
+
         TokenManager(this).logout()
         HouseManager(this).logout()
 

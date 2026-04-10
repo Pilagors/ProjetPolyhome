@@ -2,6 +2,7 @@ package com.monfort.projetpolyhome
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -33,6 +34,12 @@ class RegisterActivity : AppCompatActivity() {
     private fun register(){
         val name = findViewById<EditText>(R.id.usernameRegister)
         val password = findViewById<EditText>(R.id.passwordRegister)
+        val confirm = findViewById<EditText>(R.id.passwordConfirmRegister)
+
+        if (password.text.toString() != confirm.text.toString()) {
+            Toast.makeText(this, "Les mots de passes ne correspondent pas", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val data = RegisterData(name.text.toString(), password.text.toString())
         Api().post<RegisterData>("https://polyhome.lesmoulinsdudev.com/api/users/register",data,::registerSucces)
@@ -61,5 +68,12 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    fun goToLogin(view: View) {
+        startActivity(
+            Intent(this, LoginActivity::class.java)
+        )
+        finish()
     }
 }

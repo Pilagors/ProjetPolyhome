@@ -83,7 +83,7 @@
             app:boxStrokeColor="#00838F"
             app:hintTextColor="#00838F"
             android:layout_marginTop="10sp"
-            app:startIconDrawable="@drawable/house_icon">
+            app:startIconDrawable="@drawable/user_icon">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/txtUsername"
@@ -120,6 +120,20 @@
             android:textAllCaps="false"
             android:textSize="18sp"
             app:cornerRadius="15dp" />
+
+        <Button
+            android:id="@+id/btnGoToRegister"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="32dp"
+            android:text="Pas encore de compte ?"
+            android:textAllCaps="false"
+            android:textColor="#00838F"
+            android:textSize="18sp"
+            app:cornerRadius="15dp"
+            app:strokeColor="#00838F"
+            app:strokeWidth="2dp" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
