@@ -1,4 +1,4 @@
-package com.example.androidtp2
+package com.monfort.projetpolyhome.utils
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -36,6 +36,11 @@ class Api {
         request<Unit>(path, "DELETE", onSuccess, null, securityToken);
     }
 
+    public inline fun <reified K>delete(path: String, data: K, crossinline onSuccess: (Int) -> Unit, securityToken: String? = null)
+    {
+        request<K>(path, "DELETE", onSuccess, data, securityToken);
+    }
+
     inline fun <reified T, reified K>request(
         path: String,
         method: String,
@@ -47,13 +52,14 @@ class Api {
             val connection = prepareConnection<K>(path, method, data, securityToken);
             val responseCode = connection.responseCode;
 
-            if (responseCode == 200)
+            if (responseCode in 200..299)
             {
-                onSuccess(responseCode, processData(connection));
+                onSuccess(responseCode, processData(connection))
             }
             else
             {
-                println(responseCode);
+                println(responseCode)
+                onSuccess(responseCode, null)
             }
         }
     }
