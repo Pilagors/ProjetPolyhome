@@ -3,6 +3,7 @@ package com.monfort.projetpolyhome
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ListView
@@ -28,9 +29,9 @@ import kotlinx.coroutines.launch
 
 class HomeActivity : AppCompatActivity() {
 
-    private lateinit var webView: WebView
-    lateinit var adapter: DeviceAdapter
-    val devicesList: ArrayList<DeviceData> = ArrayList()
+    private lateinit var webView : WebView
+    lateinit var adapter : DeviceAdapter
+    val devicesList : ArrayList<DeviceData> = ArrayList()
 
     private var poll: Job? = null
 
@@ -163,7 +164,12 @@ class HomeActivity : AppCompatActivity() {
                 }
 
                 403 -> {
-                    Toast.makeText(this, "Accès refusé", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
+                    HouseManager(this).logout()
+                    val intent = Intent(this, HousesActivity::class.java)
+                    startActivity(intent)
+                    finish()
+
                 }
 
                 500 -> {
@@ -204,7 +210,7 @@ class HomeActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    fun goToUserActivity(view: View) {
+    fun goToUserActivity(view: View){
         val intent = Intent(this, UsersActivity::class.java)
         startActivity(intent)
     }
