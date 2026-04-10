@@ -27,6 +27,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         initLoginButton()
+        initRegisterButton()
     }
 
     private fun initLoginButton() {
@@ -34,6 +35,14 @@ class LoginActivity : AppCompatActivity() {
 
         button.setOnClickListener {
             login(it)
+        }
+    }
+
+    private fun initRegisterButton() {
+        val button = findViewById<Button>(R.id.btnGoToRegister)
+        button.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
     }
 
