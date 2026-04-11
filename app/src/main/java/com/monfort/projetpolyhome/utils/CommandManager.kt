@@ -3,11 +3,9 @@ package com.monfort.projetpolyhome.utils
 import com.monfort.projetpolyhome.data.DeviceData
 
 class CommandManager(
-    devices: List<DeviceData> = emptyList()
+    private var devices: List<DeviceData> = emptyList()
 ) {
 
-    var devices: List<DeviceData> = devices
-        private set
     fun update(newDevices: List<DeviceData>) {
         devices = newDevices
     }
