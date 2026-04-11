@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.monfort.projetpolyhome.adapters.DeviceAdapter
+import com.monfort.projetpolyhome.components.GroupCommandPanel
 import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
 import com.monfort.projetpolyhome.data.DevicesResponse
@@ -34,6 +35,9 @@ class HomeActivity : AppCompatActivity() {
     lateinit var adapter : DeviceAdapter
     val devicesList : ArrayList<DeviceData> = ArrayList()
     val commandManager = CommandManager()
+    private lateinit var panelLight: GroupCommandPanel
+    private lateinit var panelShutter: GroupCommandPanel
+    private lateinit var panelGarage: GroupCommandPanel
     private var poll: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +76,13 @@ class HomeActivity : AppCompatActivity() {
 
     private fun initList() {
         val listView = findViewById<ListView>(R.id.middleListView)
+
+        val header = layoutInflater.inflate(R.layout.group_command_header, listView, false)
+        panelLight = header.findViewById(R.id.panelLight)
+        panelShutter = header.findViewById(R.id.panelShutter)
+        panelGarage  = header.findViewById(R.id.panelGarage)
+
+        listView.addHeaderView(header, null, false)
         listView.adapter = adapter
     }
 
