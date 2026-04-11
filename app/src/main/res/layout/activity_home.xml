@@ -41,7 +41,7 @@
             android:background="?android:attr/listDivider" />
     </LinearLayout>
 
-    <ExpandableListView
+    <ListView
         android:id="@+id/middleListView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -51,7 +51,7 @@
         app:layout_constraintTop_toBottomOf="@+id/topPanel">
 
 
-    </ExpandableListView>
+    </ListView>
 
     <LinearLayout
         android:id="@+id/bottomNavigation"
