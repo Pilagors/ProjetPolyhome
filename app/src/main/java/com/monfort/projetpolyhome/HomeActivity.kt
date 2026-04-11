@@ -216,6 +216,11 @@ class HomeActivity : AppCompatActivity() {
         commandManager.update(devices)
         adapter.update(devicesList)
 
+        panelLight.bind("light", commandManager, ::deviceButtonCommand)
+        panelShutter.bind("rolling shutter", commandManager, ::deviceButtonCommand)
+        panelGarage.bind("garage door", commandManager, ::deviceButtonCommand)
+
+
     }
 
     fun goToHouses(view: View) {
