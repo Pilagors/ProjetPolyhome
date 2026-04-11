@@ -21,12 +21,18 @@
 
             <TextView
                 android:id="@+id/deviceTypeText"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="TextView"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_margin="10dp"/>
+
+            <GridLayout
+                android:id="@+id/groupCommand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
             <LinearLayout
                 android:id="@+id/devicesContainer"

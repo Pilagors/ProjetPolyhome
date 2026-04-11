@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
+import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.monfort.projetpolyhome.R
 import com.monfort.projetpolyhome.data.DeviceData
+import kotlin.math.exp
 
 class DeviceAdapter(
     val context: Context,
@@ -22,6 +24,7 @@ class DeviceAdapter(
     //     key        value
     // map<type, liste_de_controles>
     private var groups: List<Map.Entry<String, List<DeviceData>>> = devices.groupBy { it.type }.entries.toList()
+    private val expandsMap: MutableMap<String, Boolean> = mutableMapOf()
 
     override fun getCount(): Int {
         return groups.size
@@ -39,12 +42,33 @@ class DeviceAdapter(
         val rowView = inflater.inflate(R.layout.home_list_item, parent, false)
 
         val group = groups[position]
+        val type = group.key
         val devices = group.value
 
         val devicesContainer = rowView.findViewById<LinearLayout>(R.id.devicesContainer)
         val deviceTypeText = rowView.findViewById<TextView>(R.id.deviceTypeText)
 
-        deviceTypeText.text = group.key
+        deviceTypeText.text = type
+
+        val isExpanded = expandsMap.getOrDefault(type, false)
+
+        if (isExpanded) {
+            devicesContainer.visibility = View.VISIBLE
+        } else {
+            devicesContainer.visibility = View.GONE
+        }
+
+        deviceTypeText.setOnClickListener {
+            val newState = !expandsMap.getOrDefault(type, false)
+            expandsMap[type] = newState
+
+            if (newState) {
+                devicesContainer.visibility = View.VISIBLE
+            } else {
+                devicesContainer.visibility = View.GONE
+            }
+        }
+
         devicesContainer.removeAllViews()
 
         for (device in devices) {
@@ -52,7 +76,6 @@ class DeviceAdapter(
             commandView.findViewById<TextView>(R.id.deviceId).text = device.id
 
             val btnLayout = commandView.findViewById<LinearLayout>(R.id.btnLayout)
-
             val btnMap : MutableMap<String, Button> = mutableMapOf()
 
             for (command in device.availableCommands) {
@@ -67,7 +90,6 @@ class DeviceAdapter(
                 btnMap[command] = btn
             }
             customButtonVisibility(device, btnMap)
-
             devicesContainer.addView(commandView)
         }
 
