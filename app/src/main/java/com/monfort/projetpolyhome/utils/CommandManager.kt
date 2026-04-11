@@ -6,14 +6,18 @@ class CommandManager(
     devices: List<DeviceData> = emptyList()
 ) {
 
-    private var devices: List<DeviceData> = devices
-
+    var devices: List<DeviceData> = devices
+        private set
     fun update(newDevices: List<DeviceData>) {
         devices = newDevices
     }
 
     fun getFloor(id: String): Int? {
-        return id.split(".").firstOrNull()?.toIntOrNull()
+        val first = id.substringBefore(".")
+        val number = first.substringAfterLast(" ")
+        return number.toIntOrNull()
+        // Shutter 1.1 -> [Shutter 1] [1] -> [Shutter] [1] -> RDC
+        // Light 2.1 -> [Light 2] [1] -> [Light] [2] -> Étage
     }
 
     fun getFloors(): List<Int> {
