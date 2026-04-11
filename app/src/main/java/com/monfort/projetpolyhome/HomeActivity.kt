@@ -19,6 +19,7 @@ import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
 import com.monfort.projetpolyhome.data.DevicesResponse
 import com.monfort.projetpolyhome.utils.Api
+import com.monfort.projetpolyhome.utils.CommandManager
 import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
 import kotlinx.coroutines.Job
@@ -32,7 +33,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var webView : WebView
     lateinit var adapter : DeviceAdapter
     val devicesList : ArrayList<DeviceData> = ArrayList()
-
+    val commandManager = CommandManager()
     private var poll: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -201,6 +202,7 @@ class HomeActivity : AppCompatActivity() {
     private fun initListCards(devices: List<DeviceData>) {
         devicesList.clear()
         devicesList.addAll(devices)
+        commandManager.update(devices)
         adapter.update(devicesList)
 
     }
