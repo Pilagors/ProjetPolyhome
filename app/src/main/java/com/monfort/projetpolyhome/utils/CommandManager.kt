@@ -16,6 +16,17 @@ class CommandManager(
         return id.split(".").firstOrNull()?.toIntOrNull()
     }
 
+    fun getFloors(): List<Int> {
+        return devices.mapNotNull { getFloor(it.id) }
+            .distinct()
+            .sorted()
+    }
+
+    fun getTypes(): List<String> {
+        return devices.map { it.type }
+            .distinct()
+    }
+
     fun filterDevices(type: String? = null, floor: Int? = null): List<DeviceData> {
         return devices.filter { device ->
             val mType = type == null || device.type == type
