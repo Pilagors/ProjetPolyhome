@@ -3,10 +3,9 @@ package com.monfort.projetpolyhome
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.ListView
+import android.widget.ExpandableListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -19,10 +18,10 @@ import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
 import com.monfort.projetpolyhome.data.DevicesResponse
 import com.monfort.projetpolyhome.utils.Api
+import com.monfort.projetpolyhome.utils.CommandManager
 import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -32,7 +31,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var webView : WebView
     lateinit var adapter : DeviceAdapter
     val devicesList : ArrayList<DeviceData> = ArrayList()
-
+    val commandManager = CommandManager()
     private var poll: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,10 +45,10 @@ class HomeActivity : AppCompatActivity() {
         }
 
         this.webView = findViewById<WebView>(R.id.houseView)
-
         this.adapter = DeviceAdapter(this, devicesList, ::deviceButtonCommand)
 
-        initList()
+        val listView = findViewById<ExpandableListView>(R.id.middleListView)
+        listView.setAdapter(adapter)
     }
 
     override fun onResume() {
@@ -67,11 +66,6 @@ class HomeActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         poll?.cancel()
-    }
-
-    private fun initList() {
-        val listView = findViewById<ListView>(R.id.middleListView)
-        listView.adapter = adapter
     }
 
     private fun viewHouse(houseId: Int, webView: WebView) {
@@ -156,7 +150,7 @@ class HomeActivity : AppCompatActivity() {
         runOnUiThread {
             when (responseCode) {
                 200 -> {
-                    initListCards(response?.devices ?: emptyList())
+                    updateDevices(response?.devices ?: emptyList())
                 }
 
                 400 -> {
@@ -198,11 +192,11 @@ class HomeActivity : AppCompatActivity() {
         getDevicesList(houseId)
     }
 
-    private fun initListCards(devices: List<DeviceData>) {
+    private fun updateDevices(devices: List<DeviceData>) {
         devicesList.clear()
         devicesList.addAll(devices)
+        commandManager.update(devices)
         adapter.update(devicesList)
-
     }
 
     fun goToHouses(view: View) {
