@@ -5,13 +5,50 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F0FAFB"
     tools:context=".HomeActivity">
+
+    <!-- Background Decoration -->
+    <View
+        android:id="@+id/viewBackground"
+        android:layout_width="500dp"
+        android:layout_height="500dp"
+        android:layout_marginTop="-250dp"
+        android:background="@drawable/bg_circle_cyan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/viewBackgroundBottom"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_marginBottom="-200dp"
+        android:layout_marginEnd="-200sp"
+        android:background="@drawable/bg_circle_cyan"
+        android:alpha="0.8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <View
+        android:id="@+id/viewBackgroundSmall"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_marginStart="-200sp"
+        android:layout_marginBottom="-200dp"
+        android:alpha="0.5"
+        android:background="@drawable/bg_circle_cyan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
         android:id="@+id/topPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -19,45 +56,50 @@
         <TextView
             android:id="@+id/houseIdView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:gravity="center"
+            android:padding="16dp"
             android:text="Polyhome"
+            android:textColor="#00363E"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <com.monfort.projetpolyhome.components.CustomWebView
-            android:id="@+id/houseView"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="300dp">
+            android:layout_height="250dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="8dp">
+            <com.monfort.projetpolyhome.components.CustomWebView
+                android:id="@+id/houseView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </androidx.cardview.widget.CardView>
 
-        </com.monfort.projetpolyhome.components.CustomWebView>
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_margin="30dp"
-            android:background="?android:attr/listDivider" />
     </LinearLayout>
 
-    <ListView
+    <ExpandableListView
         android:id="@+id/middleListView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:groupIndicator="@null"
+        android:dividerHeight="0dp"
+        android:divider="@null"
+        android:paddingTop="8dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topPanel">
-
-
-    </ListView>
+        app:layout_constraintTop_toBottomOf="@+id/topPanel" />
 
     <LinearLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:elevation="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -67,16 +109,19 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
             android:onClick="goToUserActivity"
-            app:srcCompat="@drawable/users_icons"
-            />
+            android:tint="#00838F"
+            app:srcCompat="@drawable/users_icons" />
 
         <ImageButton
             android:id="@+id/btnHouses"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
             android:onClick="goToHouses"
+            android:tint="#00838F"
             app:srcCompat="@drawable/houses_icon" />
 
         <ImageButton
@@ -84,7 +129,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
             android:onClick="logout"
+            android:tint="#00838F"
             app:srcCompat="@drawable/disconnect_icon" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
