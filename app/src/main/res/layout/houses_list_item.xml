@@ -11,10 +11,12 @@
     app:cardElevation="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutHouseItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#f0f7f7"
         android:padding="16dp">
+
 
         <ImageView
             android:id="@+id/imageView"
@@ -57,7 +59,7 @@
                     android:textColor="#00363e"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    tools:text="XXX" />
+                    android:text="XXX" />
             </LinearLayout>
 
             <TextView
@@ -67,7 +69,7 @@
                 android:layout_marginTop="4dp"
                 android:textColor="#00838F"
                 android:textSize="14sp"
-                tools:text="You are the owner" />
+                android:text="vous êtes propriétaire" />
 
         </LinearLayout>
 

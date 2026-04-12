@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.monfort.projetpolyhome.R
 import com.monfort.projetpolyhome.data.HouseData
 import com.monfort.projetpolyhome.utils.HouseManager
@@ -40,11 +41,12 @@ class HouseAdapter(
 
         // Changement visiblité si selectionné
         val houseId = HouseManager(context).getHouseId()
+        val caca = rowView.findViewById<ConstraintLayout>(R.id.layoutHouseItem)
 
         if (current?.houseId == houseId) {
-            rowView.setBackgroundColor(Color.parseColor("#D3E3FC"))
+            caca.setBackgroundColor(Color.parseColor("#B3D6D6"))
         } else {
-            rowView.setBackgroundColor(Color.TRANSPARENT)
+            caca.setBackgroundColor(Color.parseColor("#F0F7F7"))
         }
 
         // onClickListener
