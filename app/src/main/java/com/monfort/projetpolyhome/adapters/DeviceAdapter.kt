@@ -99,20 +99,19 @@ class DeviceAdapter(
         val deviceIdText = view.findViewById<TextView>(R.id.deviceId)
         val btnLayout = view.findViewById<LinearLayout>(R.id.btnLayout)
         
+        // On s'assure que l'ID est bien affiché
         deviceIdText.text = device.id
-
-        val viewsToRemove = mutableListOf<View>()
-        for (i in 0 until btnLayout.childCount) {
-            val child = btnLayout.getChildAt(i)
-            if (child is Button) viewsToRemove.add(child)
-        }
-        viewsToRemove.forEach { btnLayout.removeView(it) }
-
+        
+        // On nettoie le layout des boutons (en gardant les autres éléments si nécessaire)
+        // Note: Si deviceId est DANS btnLayout, il sera supprimé par removeAllViews()
+        btnLayout.removeAllViews()
+        
         val btnMap: MutableMap<String, Button> = mutableMapOf()
+
         for (cmd in device.availableCommands) {
-            val btn = Button(context).apply {
+            val btn = inflater.inflate(R.layout.device_command_button, btnLayout, false) as Button
+            btn.apply {
                 text = cmd
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 setOnClickListener { command(device, cmd) }
             }
             btnLayout.addView(btn)
