@@ -53,7 +53,7 @@ class GroupCommandPanel(context: Context, attrs: AttributeSet? = null)
     private fun addButton(label: String, onClick: () -> Unit) {
         val btn = Button(context).apply {
             text = label
-            isFocusable = false // Important pour laisser l'ExpandableListView gérer le clic de groupe
+            isFocusable = false
             isFocusableInTouchMode = false
             layoutParams = GridLayout.LayoutParams().apply {
                 width = 0

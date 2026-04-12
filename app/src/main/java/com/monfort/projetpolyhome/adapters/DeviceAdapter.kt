@@ -49,7 +49,6 @@ class DeviceAdapter(
 
     override fun getChildrenCount(groupPosition: Int): Int {
         val count = devicesByType[types[groupPosition]]?.size ?: 0
-        // On ajoute le panneau de commande groupée seulement s'il y a plus d'un appareil
         return if (count > 1) count + 1 else count
     }
 
