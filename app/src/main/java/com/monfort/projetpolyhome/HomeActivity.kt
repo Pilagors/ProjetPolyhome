@@ -215,7 +215,6 @@ class HomeActivity : AppCompatActivity() {
                     HouseManager(this).logout()
                     val intent = Intent(this, HousesActivity::class.java)
                     startActivity(intent)
-                    finish()
                 }
                 500 -> {
                     poll?.cancel()
