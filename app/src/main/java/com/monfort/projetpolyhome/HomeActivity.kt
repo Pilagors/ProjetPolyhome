@@ -22,7 +22,6 @@ import com.monfort.projetpolyhome.utils.CommandManager
 import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
