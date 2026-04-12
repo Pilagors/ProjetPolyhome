@@ -87,14 +87,12 @@ class DeviceAdapter(
         val typeDevices = devicesByType[type]!!
 
         if (typeDevices.size > 1 && childPosition == 0) {
-            // Afficher le GroupCommandPanel comme premier enfant seulement si plusieurs devices
             val panel = GroupCommandPanel(context)
             panel.bind(type, commandManager, command)
             panel.setPadding(32, 16, 32, 16)
             return panel
         }
 
-        // Déterminer l'index réel du device
         val deviceIndex = if (typeDevices.size > 1) childPosition - 1 else childPosition
         val device = typeDevices[deviceIndex]
 
@@ -103,8 +101,7 @@ class DeviceAdapter(
         val btnLayout = view.findViewById<LinearLayout>(R.id.btnLayout)
         
         deviceIdText.text = device.id
-        
-        // Nettoyage et création des boutons
+
         val viewsToRemove = mutableListOf<View>()
         for (i in 0 until btnLayout.childCount) {
             val child = btnLayout.getChildAt(i)
