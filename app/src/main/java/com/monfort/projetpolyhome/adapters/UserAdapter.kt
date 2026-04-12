@@ -59,7 +59,7 @@ class UserAdapter(
             }
         }
         else {
-            delete.visibility = View.INVISIBLE
+            delete.visibility = View.GONE
             delete.setOnClickListener(null)
         }
 
