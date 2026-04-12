@@ -3,10 +3,9 @@ package com.monfort.projetpolyhome
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.ListView
+import android.widget.ExpandableListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -15,7 +14,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.monfort.projetpolyhome.adapters.DeviceAdapter
-import com.monfort.projetpolyhome.components.GroupCommandPanel
 import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
 import com.monfort.projetpolyhome.data.DevicesResponse
@@ -35,9 +33,6 @@ class HomeActivity : AppCompatActivity() {
     lateinit var adapter : DeviceAdapter
     val devicesList : ArrayList<DeviceData> = ArrayList()
     val commandManager = CommandManager()
-    private lateinit var panelLight: GroupCommandPanel
-    private lateinit var panelShutter: GroupCommandPanel
-    private lateinit var panelGarage: GroupCommandPanel
     private var poll: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,10 +46,10 @@ class HomeActivity : AppCompatActivity() {
         }
 
         this.webView = findViewById<WebView>(R.id.houseView)
-
         this.adapter = DeviceAdapter(this, devicesList, ::deviceButtonCommand)
 
-        initList()
+        val listView = findViewById<ExpandableListView>(R.id.middleListView)
+        listView.setAdapter(adapter)
     }
 
     override fun onResume() {
@@ -72,18 +67,6 @@ class HomeActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         poll?.cancel()
-    }
-
-    private fun initList() {
-        val listView = findViewById<ListView>(R.id.middleListView)
-
-        val header = layoutInflater.inflate(R.layout.group_command_header, listView, false)
-        panelLight = header.findViewById(R.id.panelLight)
-        panelShutter = header.findViewById(R.id.panelShutter)
-        panelGarage  = header.findViewById(R.id.panelGarage)
-
-        listView.addHeaderView(header, null, false)
-        listView.adapter = adapter
     }
 
     private fun viewHouse(houseId: Int, webView: WebView) {
@@ -168,7 +151,7 @@ class HomeActivity : AppCompatActivity() {
         runOnUiThread {
             when (responseCode) {
                 200 -> {
-                    initListCards(response?.devices ?: emptyList())
+                    updateDevices(response?.devices ?: emptyList())
                 }
 
                 400 -> {
@@ -210,17 +193,11 @@ class HomeActivity : AppCompatActivity() {
         getDevicesList(houseId)
     }
 
-    private fun initListCards(devices: List<DeviceData>) {
+    private fun updateDevices(devices: List<DeviceData>) {
         devicesList.clear()
         devicesList.addAll(devices)
         commandManager.update(devices)
         adapter.update(devicesList)
-
-        panelLight.bind("light", commandManager, ::deviceButtonCommand)
-        panelShutter.bind("rolling shutter", commandManager, ::deviceButtonCommand)
-        panelGarage.bind("garage door", commandManager, ::deviceButtonCommand)
-
-
     }
 
     fun goToHouses(view: View) {

@@ -4,125 +4,147 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
+import android.widget.BaseExpandableListAdapter
 import android.widget.Button
-import android.widget.GridLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.monfort.projetpolyhome.R
+import com.monfort.projetpolyhome.components.GroupCommandPanel
 import com.monfort.projetpolyhome.data.DeviceData
-import kotlin.math.exp
+import com.monfort.projetpolyhome.utils.CommandManager
 
 class DeviceAdapter(
-    val context: Context,
-    val devices: List<DeviceData>,
-    val command: (device: DeviceData, command: String) -> Unit
-) : BaseAdapter() {
+    private val context: Context,
+    private var devices: List<DeviceData>,
+    private val command: (device: DeviceData, command: String) -> Unit
+) : BaseExpandableListAdapter() {
 
-    private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val inflater: LayoutInflater = LayoutInflater.from(context)
+    private val commandManager = CommandManager(devices)
+    
+    private var types: List<String> = emptyList()
+    private var devicesByType: Map<String, List<DeviceData>> = emptyMap()
 
-    //     key        value
-    // map<type, liste_de_controles>
-    private var groups: List<Map.Entry<String, List<DeviceData>>> = devices.groupBy { it.type }.entries.toList()
-    private val expandsMap: MutableMap<String, Boolean> = mutableMapOf()
-
-    override fun getCount(): Int {
-        return groups.size
+    init {
+        updateData(devices)
     }
 
-    override fun getItem(position: Int): Any? {
-        return groups[position]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
-        val rowView = inflater.inflate(R.layout.home_list_item, parent, false)
-
-        val group = groups[position]
-        val type = group.key
-        val devices = group.value
-
-        val devicesContainer = rowView.findViewById<LinearLayout>(R.id.devicesContainer)
-        val deviceTypeText = rowView.findViewById<TextView>(R.id.deviceTypeText)
-
-        deviceTypeText.text = type
-
-        val isExpanded = expandsMap.getOrDefault(type, false)
-
-        if (isExpanded) {
-            devicesContainer.visibility = View.VISIBLE
-        } else {
-            devicesContainer.visibility = View.GONE
+    private fun updateData(newDevices: List<DeviceData>) {
+        devices = newDevices
+        commandManager.update(newDevices)
+        
+        types = commandManager.getTypes()
+        devicesByType = types.associateWith { type ->
+            commandManager.filterDevices(type = type)
         }
-
-        deviceTypeText.setOnClickListener {
-            val newState = !expandsMap.getOrDefault(type, false)
-            expandsMap[type] = newState
-
-            if (newState) {
-                devicesContainer.visibility = View.VISIBLE
-            } else {
-                devicesContainer.visibility = View.GONE
-            }
-        }
-
-        devicesContainer.removeAllViews()
-
-        for (device in devices) {
-            val commandView = inflater.inflate(R.layout.commands_buttons, devicesContainer, false)
-            commandView.findViewById<TextView>(R.id.deviceId).text = device.id
-
-            val btnLayout = commandView.findViewById<LinearLayout>(R.id.btnLayout)
-            val btnMap : MutableMap<String, Button> = mutableMapOf()
-
-            for (command in device.availableCommands) {
-                val btn = Button(context).apply {
-                    text = command
-                    layoutParams = LinearLayout.LayoutParams(
-                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f
-                    )
-                    setOnClickListener { command(device, command) }
-                }
-                btnLayout.addView(btn)
-                btnMap[command] = btn
-            }
-            customButtonVisibility(device, btnMap)
-            devicesContainer.addView(commandView)
-        }
-
-        return rowView
     }
 
     fun update(newDevices: List<DeviceData>) {
-        groups = newDevices.groupBy { it.type }.entries.toList()
+        updateData(newDevices)
         notifyDataSetChanged()
     }
 
-    fun customButtonVisibility(device: DeviceData, btnMap: Map<String, Button>) {
-        val opening = device.opening
+    override fun getGroupCount(): Int = types.size
+
+    override fun getChildrenCount(groupPosition: Int): Int {
+        val count = devicesByType[types[groupPosition]]?.size ?: 0
+        // On ajoute le panneau de commande groupée seulement s'il y a plus d'un appareil
+        return if (count > 1) count + 1 else count
+    }
+
+    override fun getGroup(groupPosition: Int): Any = types[groupPosition]
+
+    override fun getChild(groupPosition: Int, childPosition: Int): Any? {
+        val typeDevices = devicesByType[types[groupPosition]] ?: return null
+        return if (typeDevices.size > 1) {
+            if (childPosition == 0) null else typeDevices[childPosition - 1]
+        } else {
+            typeDevices[childPosition]
+        }
+    }
+
+    override fun getGroupId(groupPosition: Int): Long = groupPosition.toLong()
+
+    override fun getChildId(groupPosition: Int, childPosition: Int): Long = childPosition.toLong()
+
+    override fun hasStableIds(): Boolean = true
+
+    override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup?): View {
+        val view = convertView ?: inflater.inflate(R.layout.device_group_header, parent, false)
+        val type = types[groupPosition]
+        val titleView = view.findViewById<TextView>(R.id.groupTitle)
+        val indicator = view.findViewById<ImageView>(R.id.indicator)
+
+        titleView.text = type.replaceFirstChar { it.uppercase() }
+        indicator.setImageResource(if (isExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float)
+        
+        return view
+    }
+
+    override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
+        val type = types[groupPosition]
+        val typeDevices = devicesByType[type]!!
+
+        if (typeDevices.size > 1 && childPosition == 0) {
+            // Afficher le GroupCommandPanel comme premier enfant seulement si plusieurs devices
+            val panel = GroupCommandPanel(context)
+            panel.bind(type, commandManager, command)
+            panel.setPadding(32, 16, 32, 16)
+            return panel
+        }
+
+        // Déterminer l'index réel du device
+        val deviceIndex = if (typeDevices.size > 1) childPosition - 1 else childPosition
+        val device = typeDevices[deviceIndex]
+
+        val view = inflater.inflate(R.layout.commands_buttons, parent, false)
+        val deviceIdText = view.findViewById<TextView>(R.id.deviceId)
+        val btnLayout = view.findViewById<LinearLayout>(R.id.btnLayout)
+        
+        deviceIdText.text = device.id
+        
+        // Nettoyage et création des boutons
+        val viewsToRemove = mutableListOf<View>()
+        for (i in 0 until btnLayout.childCount) {
+            val child = btnLayout.getChildAt(i)
+            if (child is Button) viewsToRemove.add(child)
+        }
+        viewsToRemove.forEach { btnLayout.removeView(it) }
+
+        val btnMap: MutableMap<String, Button> = mutableMapOf()
+        for (cmd in device.availableCommands) {
+            val btn = Button(context).apply {
+                text = cmd
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                setOnClickListener { command(device, cmd) }
+            }
+            btnLayout.addView(btn)
+            btnMap[cmd] = btn
+        }
+
+        customButtonVisibility(device, btnMap)
+        return view
+    }
+
+    override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean = true
+
+    private fun customButtonVisibility(device: DeviceData, btnMap: Map<String, Button>) {
         val openingMode = device.openingMode
         val power = device.power
 
         if (power != null) {
-            when {
-                power == 0 -> btnMap["TURN OFF"]?.visibility = View.GONE
-                power == 1 -> btnMap["TURN ON"]?.visibility = View.GONE
+            when (power) {
+                0 -> btnMap["TURN OFF"]?.visibility = View.GONE
+                1 -> btnMap["TURN ON"]?.visibility = View.GONE
             }
         }
 
-        if (opening != null) {
-            when {
-                openingMode == 0 -> {
-                    btnMap["OPEN"]?.visibility = View.GONE
-                }
-                openingMode == 1 -> {
-                    btnMap["CLOSE"]?.visibility = View.GONE
-                }
+        if (openingMode != null) {
+            when (openingMode) {
+                0 -> btnMap["OPEN"]?.visibility = View.GONE
+                1 -> btnMap["CLOSE"]?.visibility = View.GONE
             }
         }
     }
-
 }

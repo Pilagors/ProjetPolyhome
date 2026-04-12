@@ -25,7 +25,7 @@ class GroupCommandPanel(context: Context, attrs: AttributeSet? = null)
     }
 
     fun bind(type: String, commandManager: CommandManager, sendCommand: (DeviceData, String) -> Unit) {
-        title.text = type
+        title.text = "Commandes groupées"
 
         val commands = commandManager.filterDevices(type = type)
             .flatMap { it.availableCommands }
@@ -53,6 +53,8 @@ class GroupCommandPanel(context: Context, attrs: AttributeSet? = null)
     private fun addButton(label: String, onClick: () -> Unit) {
         val btn = Button(context).apply {
             text = label
+            isFocusable = false // Important pour laisser l'ExpandableListView gérer le clic de groupe
+            isFocusableInTouchMode = false
             layoutParams = GridLayout.LayoutParams().apply {
                 width = 0
                 columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
