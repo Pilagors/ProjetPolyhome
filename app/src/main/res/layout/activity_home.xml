@@ -71,10 +71,71 @@
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="8dp">
-            <com.monfort.projetpolyhome.components.CustomWebView
-                android:id="@+id/houseView"
+
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+                <!-- Safe Mode View -->
+                <LinearLayout
+                    android:id="@+id/safeModeContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="#FFFFFF"
+                    android:padding="20dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnEnableWebView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Activer la vue 3D"
+                        android:textAllCaps="false"
+                        app:backgroundTint="#00838F"
+                        app:cornerRadius="15dp" />
+
+                    <TextView
+                        android:id="@+id/textExternalLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Ouvrir dans le navigateur"
+                        android:textColor="#00838F"
+                        android:textSize="14sp"
+                        android:textStyle="italic|bold"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <!-- 3D WebView Container -->
+                <FrameLayout
+                    android:id="@+id/webViewContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone">
+
+                    <com.monfort.projetpolyhome.components.CustomWebView
+                        android:id="@+id/houseView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDisableWebView"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="8dp"
+                        android:text="Désactiver 3D"
+                        android:textColor="#00838F"
+                        android:textSize="12sp"
+                        android:textAllCaps="false"
+                        app:icon="@android:drawable/ic_menu_close_clear_cancel"
+                        app:iconTint="#00838F" />
+                </FrameLayout>
+
+            </FrameLayout>
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>
@@ -88,6 +149,18 @@
         android:divider="@null"
         android:paddingTop="8dp"
         android:clipToPadding="false"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topPanel" />
+
+    <!-- Loading Spinner -->
+    <ProgressBar
+        android:id="@+id/loadingSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="#00838F"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
