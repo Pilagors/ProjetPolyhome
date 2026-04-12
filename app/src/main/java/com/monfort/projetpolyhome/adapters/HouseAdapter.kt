@@ -41,12 +41,12 @@ class HouseAdapter(
 
         // Changement visiblité si selectionné
         val houseId = HouseManager(context).getHouseId()
-        val caca = rowView.findViewById<ConstraintLayout>(R.id.layoutHouseItem)
+        val layout = rowView.findViewById<ConstraintLayout>(R.id.layoutHouseItem)
 
         if (current?.houseId == houseId) {
-            caca.setBackgroundColor(Color.parseColor("#B3D6D6"))
+            layout.setBackgroundColor(Color.parseColor("#B3D6D6"))
         } else {
-            caca.setBackgroundColor(Color.parseColor("#F0F7F7"))
+            layout.setBackgroundColor(Color.parseColor("#F0F7F7"))
         }
 
         // onClickListener
