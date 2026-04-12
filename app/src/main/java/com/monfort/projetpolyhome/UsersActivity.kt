@@ -90,7 +90,7 @@ class UsersActivity : AppCompatActivity() {
             }
         }
         else {
-            add.visibility = View.INVISIBLE
+            add.visibility = View.GONE
         }
     }
 

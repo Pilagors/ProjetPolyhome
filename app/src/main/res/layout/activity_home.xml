@@ -5,13 +5,50 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F0FAFB"
     tools:context=".HomeActivity">
+
+    <!-- Background Decoration -->
+    <View
+        android:id="@+id/viewBackground"
+        android:layout_width="500dp"
+        android:layout_height="500dp"
+        android:layout_marginTop="-250dp"
+        android:background="@drawable/bg_circle_cyan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/viewBackgroundBottom"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_marginBottom="-200dp"
+        android:layout_marginEnd="-200sp"
+        android:background="@drawable/bg_circle_cyan"
+        android:alpha="0.8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <View
+        android:id="@+id/viewBackgroundSmall"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_marginStart="-200sp"
+        android:layout_marginBottom="-200dp"
+        android:alpha="0.5"
+        android:background="@drawable/bg_circle_cyan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
         android:id="@+id/topPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -19,45 +56,123 @@
         <TextView
             android:id="@+id/houseIdView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:gravity="center"
+            android:padding="16dp"
             android:text="Polyhome"
+            android:textColor="#00363E"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <com.monfort.projetpolyhome.components.CustomWebView
-            android:id="@+id/houseView"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="300dp">
+            android:layout_height="250dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="8dp">
 
-        </com.monfort.projetpolyhome.components.CustomWebView>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_margin="30dp"
-            android:background="?android:attr/listDivider" />
+                <!-- Safe Mode View -->
+                <LinearLayout
+                    android:id="@+id/safeModeContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="#FFFFFF"
+                    android:padding="20dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnEnableWebView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Activer la vue 3D"
+                        android:textAllCaps="false"
+                        app:backgroundTint="#00838F"
+                        app:cornerRadius="15dp" />
+
+                    <TextView
+                        android:id="@+id/textExternalLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Ouvrir dans le navigateur"
+                        android:textColor="#00838F"
+                        android:textSize="14sp"
+                        android:textStyle="italic|bold"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <!-- 3D WebView Container -->
+                <FrameLayout
+                    android:id="@+id/webViewContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone">
+
+                    <com.monfort.projetpolyhome.components.CustomWebView
+                        android:id="@+id/houseView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDisableWebView"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="8dp"
+                        android:text="Désactiver 3D"
+                        android:textColor="#00838F"
+                        android:textSize="12sp"
+                        android:textAllCaps="false"
+                        app:icon="@android:drawable/ic_menu_close_clear_cancel"
+                        app:iconTint="#00838F" />
+                </FrameLayout>
+
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
+
     </LinearLayout>
 
-    <ListView
+    <ExpandableListView
         android:id="@+id/middleListView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:groupIndicator="@null"
+        android:dividerHeight="0dp"
+        android:divider="@null"
+        android:paddingTop="8dp"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topPanel">
+        app:layout_constraintTop_toBottomOf="@+id/topPanel" />
 
-
-    </ListView>
+    <!-- Loading Spinner -->
+    <ProgressBar
+        android:id="@+id/loadingSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="#00838F"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topPanel" />
 
     <LinearLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:elevation="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -67,16 +182,19 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
             android:onClick="goToUserActivity"
-            app:srcCompat="@drawable/users_icons"
-            />
+            android:tint="#00838F"
+            app:srcCompat="@drawable/users_icons" />
 
         <ImageButton
             android:id="@+id/btnHouses"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
             android:onClick="goToHouses"
+            android:tint="#00838F"
             app:srcCompat="@drawable/houses_icon" />
 
         <ImageButton
@@ -84,7 +202,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
             android:onClick="logout"
+            android:tint="#00838F"
             app:srcCompat="@drawable/disconnect_icon" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

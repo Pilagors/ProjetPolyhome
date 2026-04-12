@@ -1,24 +1,31 @@
 package com.monfort.projetpolyhome
 
 import android.content.Intent
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.ListView
+import android.widget.ExpandableListView
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
 import com.monfort.projetpolyhome.adapters.DeviceAdapter
 import com.monfort.projetpolyhome.data.CommandData
 import com.monfort.projetpolyhome.data.DeviceData
 import com.monfort.projetpolyhome.data.DevicesResponse
 import com.monfort.projetpolyhome.utils.Api
+import com.monfort.projetpolyhome.utils.CommandManager
 import com.monfort.projetpolyhome.utils.HouseManager
 import com.monfort.projetpolyhome.utils.TokenManager
 import kotlinx.coroutines.Job
@@ -32,8 +39,12 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var webView : WebView
     lateinit var adapter : DeviceAdapter
     val devicesList : ArrayList<DeviceData> = ArrayList()
-
+    val commandManager = CommandManager()
     private var poll: Job? = null
+    private lateinit var loadingSpinner: ProgressBar
+    private lateinit var safeModeContainer: LinearLayout
+    private lateinit var webViewContainer: FrameLayout
+    private var isWebViewEnabled = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +57,50 @@ class HomeActivity : AppCompatActivity() {
         }
 
         this.webView = findViewById<WebView>(R.id.houseView)
-
+        this.loadingSpinner = findViewById(R.id.loadingSpinner)
+        this.safeModeContainer = findViewById(R.id.safeModeContainer)
+        this.webViewContainer = findViewById(R.id.webViewContainer)
         this.adapter = DeviceAdapter(this, devicesList, ::deviceButtonCommand)
 
-        initList()
+        val listView = findViewById<ExpandableListView>(R.id.middleListView)
+        listView.setAdapter(adapter)
+
+        initSafeMode()
+    }
+
+    private fun initSafeMode() {
+        val btnEnable = findViewById<MaterialButton>(R.id.btnEnableWebView)
+        val btnDisable = findViewById<MaterialButton>(R.id.btnDisableWebView)
+        val textExternalLink = findViewById<TextView>(R.id.textExternalLink)
+
+        btnEnable.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Activation de la vue 3D")
+                .setMessage("L'affichage de la maison en 3D est gourmand en ressources et peut ralentir ou faire crasher l'application sur certains appareils. Voulez-vous continuer ?")
+                .setPositiveButton("Accepter") { _, _ ->
+                    isWebViewEnabled = true
+                    safeModeContainer.visibility = View.GONE
+                    webViewContainer.visibility = View.VISIBLE
+                    loadWebView(HouseManager(this).getHouseId())
+                }
+                .setNegativeButton("Annuler", null)
+                .show()
+        }
+
+        btnDisable.setOnClickListener {
+            isWebViewEnabled = false
+            webViewContainer.visibility = View.GONE
+            safeModeContainer.visibility = View.VISIBLE
+            webView.loadUrl("about:blank")
+        }
+
+        textExternalLink.setOnClickListener {
+            val houseId = HouseManager(this).getHouseId()
+            if (houseId != -1) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://polyhome.lesmoulinsdudev.com/?houseId=$houseId"))
+                startActivity(intent)
+            }
+        }
     }
 
     override fun onResume() {
@@ -58,10 +109,17 @@ class HomeActivity : AppCompatActivity() {
         val houseManager = HouseManager(this)
         val houseId = houseManager.getHouseId()
 
-        if (houseManager.hasHouseIdChanged() || webView.url == null) {
-            viewHouse(houseId, webView)
+        if (houseManager.hasHouseIdChanged()) {
+            resetUIForNewHouse()
+        } else if (webView.url == null && isWebViewEnabled) {
+            loadWebView(houseId)
         }
+        
         refreshHouseIdView(houseId)
+        
+        if (poll == null || !poll!!.isActive) {
+            getDevicesListAsync(houseId)
+        }
     }
 
     override fun onPause() {
@@ -69,52 +127,54 @@ class HomeActivity : AppCompatActivity() {
         poll?.cancel()
     }
 
-    private fun initList() {
-        val listView = findViewById<ListView>(R.id.middleListView)
-        listView.adapter = adapter
+    private fun resetUIForNewHouse() {
+        loadingSpinner.visibility = View.VISIBLE
+        devicesList.clear()
+        commandManager.update(emptyList())
+        adapter.update(devicesList)
+        
+        isWebViewEnabled = false
+        webViewContainer.visibility = View.GONE
+        webView.loadUrl("about:blank")
+        safeModeContainer.visibility = View.VISIBLE
     }
 
-    private fun viewHouse(houseId: Int, webView: WebView) {
-        if (houseId == -1) {
-            webView.visibility = View.INVISIBLE
+    private fun loadWebView(houseId: Int) {
+        if (houseId == -1) return
+        
+        webView.setBackgroundColor(Color.TRANSPARENT)
+        val settings = webView.settings
+        settings.javaScriptEnabled = true
+        settings.domStorageEnabled = true
+        settings.databaseEnabled = true
+        settings.useWideViewPort = true
+        settings.loadWithOverviewMode = true
+        settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+        settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
-        } else {
-            webView.visibility = View.VISIBLE
-
-            val settings = webView.settings
-            settings.javaScriptEnabled = true
-            settings.useWideViewPort = true
-            settings.loadWithOverviewMode = true
-            settings.domStorageEnabled = true
-
-            webView.webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    super.onPageFinished(view, url)
-
-                    webView.postDelayed({
-                        val js = """
-                            (function() {
-                                const div = document.getElementsByClassName('controls')[0];
-                                const check = document.getElementById('chkDisableShadows');
-                                if (check && div) {
-                                    div.style.display = 'none';
-                                    if (check.checked === false) {
-                                        check.click();
-                                    }
-                                }
-                            })();
-                             
-                        """.trimIndent()
-
-                        webView.evaluateJavascript(js, null)
-
-                        getDevicesListAsync(houseId)
-                    }, 500)
-                }
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageCommitVisible(view: WebView?, url: String?) {
+                super.onPageCommitVisible(view, url)
+                val css = ".controls { display: none !important; }"
+                val js = "var style = document.createElement('style'); style.innerHTML = '$css'; document.head.appendChild(style);"
+                webView.evaluateJavascript(js, null)
             }
 
-            webView.loadUrl("https://polyhome.lesmoulinsdudev.com/?houseId=${houseId}")
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                webView.postDelayed({
+                    val disableShadowsJS = """
+                        (function() {
+                            var check = document.getElementById('chkDisableShadows');
+                            if (check && !check.checked) { check.click(); }
+                        })();
+                    """.trimIndent()
+                    webView.evaluateJavascript(disableShadowsJS, null)
+                }, 1000)
+            }
         }
+
+        webView.loadUrl("https://polyhome.lesmoulinsdudev.com/?houseId=${houseId}")
     }
 
     private fun refreshHouseIdView(houseId: Int) {
@@ -124,7 +184,6 @@ class HomeActivity : AppCompatActivity() {
         } else {
             houseIdView.text = "Polyhome inconnue"
         }
-
     }
 
     private fun getDevicesListAsync(houseId: Int, delay: Long = 0) {
@@ -133,47 +192,31 @@ class HomeActivity : AppCompatActivity() {
             delay(delay)
             while (isActive) {
                 getDevicesList(houseId)
-                delay(1000)
+                delay(3000)
             }
         }
     }
 
     private fun getDevicesList(houseId: Int) {
-        if (houseId == -1) {
-            return
-        }
+        if (houseId == -1) return
         val token = TokenManager(this).getToken()
-
         Api().get<DevicesResponse>(
             "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices",
             ::successDevicesList,
             token
         )
-
     }
 
     private fun successDevicesList(responseCode: Int, response: DevicesResponse?) {
         runOnUiThread {
             when (responseCode) {
-                200 -> {
-                    initListCards(response?.devices ?: emptyList())
-                }
-
-                400 -> {
-                    Toast.makeText(this, "Données fournies incorrectes", Toast.LENGTH_SHORT).show()
-                }
-
+                200 -> updateDevices(response?.devices ?: emptyList())
                 403 -> {
-                    Toast.makeText(this,"Accès refusé",Toast.LENGTH_SHORT).show()
                     HouseManager(this).logout()
                     val intent = Intent(this, HousesActivity::class.java)
                     startActivity(intent)
-                    finish()
-
                 }
-
                 500 -> {
-                    Toast.makeText(this, "Erreur serveur", Toast.LENGTH_SHORT).show()
                     poll?.cancel()
                     getDevicesListAsync(HouseManager(this).getHouseId(), 10000)
                 }
@@ -184,7 +227,6 @@ class HomeActivity : AppCompatActivity() {
     fun deviceButtonCommand(device: DeviceData, command: String) {
         val token = TokenManager(this).getToken()
         val houseId = HouseManager(this).getHouseId()
-
         Api().post<CommandData>(
             "https://polyhome.lesmoulinsdudev.com/api/houses/$houseId/devices/${device.id}/command",
             CommandData(command),
@@ -198,11 +240,14 @@ class HomeActivity : AppCompatActivity() {
         getDevicesList(houseId)
     }
 
-    private fun initListCards(devices: List<DeviceData>) {
+    private fun updateDevices(devices: List<DeviceData>) {
+        if (devices.isNotEmpty()) {
+            loadingSpinner.visibility = View.GONE
+        }
         devicesList.clear()
         devicesList.addAll(devices)
+        commandManager.update(devices)
         adapter.update(devicesList)
-
     }
 
     fun goToHouses(view: View) {
@@ -216,12 +261,11 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun logout(view: View) {
+        poll?.cancel()
         TokenManager(this).logout()
         HouseManager(this).logout()
-
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
         startActivity(intent)
         finish()
     }
